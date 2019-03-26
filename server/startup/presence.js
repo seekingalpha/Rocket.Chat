@@ -7,8 +7,7 @@ import UsersSessionsModel from '../../app/models/server/models/UsersSessions';
 Meteor.startup(function() {
 	UserPresence.start();
 
-	const startMonitor = typeof process.env.DISABLE_PRESENCE_MONITOR === 'undefined'
-		|| !['true', 'yes'].includes(String(process.env.DISABLE_PRESENCE_MONITOR).toLowerCase());
+	const startMonitor = process.env.USER_PRESENCE_MONITOR;
 	if (startMonitor) {
 		// UserPresenceMonitor.start();
 
