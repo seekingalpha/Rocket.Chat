@@ -14,6 +14,7 @@ export const fields = {
 	code: 1,
 	f: 1,
 	u: 1,
+	lastActivity: 1,
 	open: 1,
 	alert: 1,
 	roles: 1,
