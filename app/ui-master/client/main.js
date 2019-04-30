@@ -262,5 +262,10 @@ Template.main.onRendered(function() {
 });
 
 Meteor.startup(function() {
+	if (window.top === window) {
+		Meteor.defer(window.fireMonePageEvent);
+		window.fireMoneEvent('chat_screen', 'rocketchat', 'startup',
+			{ url: location.href });
+	}
 	return fireGlobalEvent('startup', true);
 });
