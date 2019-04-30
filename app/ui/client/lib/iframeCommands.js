@@ -53,10 +53,19 @@ const commands = {
 	},
 
 	'login-with-token'(data, ...args) {
+		window.fireMonePageEvent();
+		window.fireMoneEvent('chat_screen', 'rocketchat', 'startup', { url: location.href });
+
 		if (typeof data.token === 'string') {
 			Meteor.loginWithToken(data.token, function() {
 				console.log('Iframe command [login-with-token]: result', [data, ...args]);
 			});
+		}
+	},
+
+	'setup-mone'(data) {
+		if (typeof data.key === 'string') {
+			window.setPageKey(data.key);
 		}
 	},
 
