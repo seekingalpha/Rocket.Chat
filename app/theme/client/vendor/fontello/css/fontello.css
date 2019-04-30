@@ -531,3 +531,4 @@
 .icon-no-newline:before { content: '\e98d'; } /* '' */
 .icon-tools:before { content: '\e98e'; } /* '' */
 .icon-tape:before { content: '\e98f'; } /* '' */
+.icon-popout:before { content: ''; background: url(/images/open_out_chat.svg); padding: 6px; }
