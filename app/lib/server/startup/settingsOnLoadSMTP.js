@@ -21,8 +21,14 @@ const buildMailURL = _.debounce(function() {
 
 		process.env.MAIL_URL += `?pool=${ settings.get('SMTP_Pool') }`;
 
-		if (settings.get('SMTP_Protocol') === 'smtp' && settings.get('SMTP_IgnoreTLS')) {
+		if (settings.get('SMTP_Protocol') === 'smtp' && settings.get('SMTP_TLS') === 'ignore') {
+			console.log('SMTP IGNORED');
 			process.env.MAIL_URL += '&secure=false&ignoreTLS=true';
+		}
+
+		if (settings.get('SMTP_Protocol') === 'smtp' && settings.get('SMTP_TLS') === 'require') {
+			console.log('SMTP REQUIRED');
+			process.env.MAIL_URL += '&requireTLS=true';
 		}
 
 		return process.env.MAIL_URL;
@@ -59,7 +65,7 @@ settings.onload('SMTP_Pool', function() {
 	return buildMailURL();
 });
 
-settings.onload('SMTP_IgnoreTLS', function() {
+settings.onload('SMTP_TLS', function() {
 	return buildMailURL();
 });
 
