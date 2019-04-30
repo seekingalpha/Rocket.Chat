@@ -24,6 +24,7 @@ import { getUserForCheck, emailCheck } from '../../../2fa/server/code';
 import { resetUserE2EEncriptionKey } from '../../../../server/lib/resetUserE2EKey';
 import { setUserStatus } from '../../../../imports/users-presence/server/activeUsers';
 import { resetTOTP } from '../../../2fa/server/functions/resetTOTP';
+import { getBadgeCount } from '../../../lib/server/functions/notifications/mobile';
 
 API.v1.addRoute('users.create', { authRequired: true }, {
 	post() {
@@ -183,6 +184,19 @@ API.v1.addRoute('users.getPresence', { authRequired: true }, {
 
 		return API.v1.success({
 			presence: user.status,
+		});
+	},
+});
+
+API.v1.addRoute('users.unreadCount', { authRequired: true }, {
+	get() {
+		const user = this.getUserFromParams();
+		const unreadCount = Promise.await(getBadgeCount(user._id)) || 0;
+
+		return API.v1.success({
+			data: {
+				unread: unreadCount,
+			},
 		});
 	},
 });
