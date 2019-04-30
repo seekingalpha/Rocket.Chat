@@ -77,6 +77,12 @@ Template.loginForm.helpers({
 	},
 });
 
+window.failedLogin = function() {
+	toastr.error(t('User_not_found_or_incorrect_password'));
+	console.log('error!');
+	$('#login-card .login span').html('login');
+};
+
 Template.loginForm.events({
 	'submit #login-card'(event, instance) {
 		event.preventDefault();
@@ -84,6 +90,22 @@ Template.loginForm.events({
 		instance.loading.set(true);
 		const formData = instance.validate();
 		const state = instance.state.get();
+
+		if (formData && settings.get('Accounts_SALogin')) {
+			const params = {
+				email: s.trim(formData.emailOrUsername),
+				password: s.trim(formData.pass),
+			};
+			$.post(`${ location.origin.replace('rc.', '') }/authentication/rc_token_login`, params)
+				.done(function(res) {
+					console.log('success');
+					if (!res.error) {
+						Meteor.loginWithToken(res.rc_token);
+					}
+				});
+			return;
+		}
+
 		if (formData) {
 			if (state === 'email-verification') {
 				Meteor.call('sendConfirmationEmail', s.trim(formData.email), () => {
