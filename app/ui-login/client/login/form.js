@@ -313,6 +313,15 @@ Template.loginForm.onCreated(function() {
 
 Template.loginForm.onRendered(function() {
 	Session.set('loginDefaultState');
+	if (window.self === window.top) {
+		setTimeout(function() {
+			const regExp = /.*rc_token=(.*?;)/;
+			const match = regExp.exec(document.cookie);
+			if (match && match.length === 2) {
+				Meteor.loginWithToken(match[1].slice(0, -1));
+			}
+		}, 500);
+	}
 	return Tracker.autorun(() => {
 		callbacks.run('loginPageStateChange', this.state.get());
 		switch (this.state.get()) {
