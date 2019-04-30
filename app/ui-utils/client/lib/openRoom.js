@@ -111,7 +111,9 @@ export const openRoom = async function(type, name) {
 			Session.set('openedRoom', room._id);
 			RoomManager.openedRoom = room._id;
 
-			fireGlobalEvent('room-opened', _.omit(room, 'usernames'));
+			const named_room = _.omit(room, 'usernames');
+			named_room.name = name;
+			fireGlobalEvent('room-opened', named_room);
 
 			Session.set('editRoomTitle', false);
 			// KonchatNotification.removeRoomNotification(params._id)
