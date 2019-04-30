@@ -3,7 +3,7 @@ import { Session } from 'meteor/session';
 import { Template } from 'meteor/templating';
 
 import { ChatSubscription } from '../../../../models/client';
-import { Layout } from '../../../../ui-utils/client';
+import { Layout, fireGlobalEvent } from '../../../../ui-utils/client';
 import { getUserPreference } from '../../../../utils';
 
 Template.burger.helpers({
@@ -34,6 +34,8 @@ Template.burger.helpers({
 
 				return [unreadCount, unreadAlert];
 			}, [0, false]);
+
+		fireGlobalEvent('unread-messages', { unread_msgs: unreadCount });
 
 		if (unreadCount > 0) {
 			return unreadCount > 99 ? '99+' : unreadCount;
