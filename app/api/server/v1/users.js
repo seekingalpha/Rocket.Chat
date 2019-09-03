@@ -200,6 +200,17 @@ API.v1.addRoute('users.unreadCount', { authRequired: true }, {
 	},
 });
 
+API.v1.addRoute('users.clearUnread', { authRequired: true }, {
+	get() {
+		const user = this.getUserFromParams();
+		const unreadCount = Subscriptions.clearUnreadByUserId(user._id);
+
+		return API.v1.success({
+			data: unreadCount || {},
+		});
+	},
+});
+
 API.v1.addRoute('users.info', { authRequired: true }, {
 	get() {
 		const { username, userId } = this.requestParams();
