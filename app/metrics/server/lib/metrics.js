@@ -210,7 +210,10 @@ const was = {
 const updatePrometheusConfig = async () => {
 	const is = {
 		port: process.env.PROMETHEUS_PORT || settings.get('Prometheus_Port'),
-		enabled: settings.get('Prometheus_Enabled'),
+		enabled:
+			process.env.PROMETHEUS_ENABLED
+				? process.env.PROMETHEUS_ENABLED === '1'
+				: settings.get('Prometheus_Enabled'),
 		resetInterval: settings.get('Prometheus_Reset_Interval'),
 		collectGC: settings.get('Prometheus_Garbage_Collector'),
 	};
