@@ -117,7 +117,6 @@ function generateNameEmail(name, email) {
 export function getEmailData({
 	message,
 	receiver,
-	sender,
 	subscription,
 	room,
 	emailAddress,
@@ -158,11 +157,6 @@ export function getEmailData({
 		},
 		headers: {},
 	};
-
-	if (sender.emails?.length > 0) {
-		const [senderEmail] = sender.emails;
-		email.headers['Reply-To'] = generateNameEmail(username, senderEmail.address);
-	}
 
 	// If direct reply enabled, email content with headers
 	if (settings.get('Direct_Reply_Enable')) {
