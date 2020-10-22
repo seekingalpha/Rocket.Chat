@@ -23,9 +23,9 @@ settings.get('Language', (key, value) => {
 	lng = value || 'en';
 });
 
-export const replacekey = (str, key, value = '') => str.replace(new RegExp(`(\\[${ key }\\]|__${ key }__)`, 'igm'), s.escapeHTML(value));
+export const replacekey = (str, key, value = '', nonEscapeKeys = []) => str.replace(new RegExp(`(\\[${ key }\\]|__${ key }__)`, 'igm'), nonEscapeKeys && nonEscapeKeys.includes(key) ? value : s.escapeHTML(value));
 export const translate = (str) => str.replace(/\{ ?([^\} ]+)(( ([^\}]+))+)? ?\}/gmi, (match, key) => TAPi18n.__(key, { lng }));
-export const replace = function replace(str, data = {}) {
+export const replace = function replace(str, data = {}, nonEscapeKeys = []) {
 	if (!str) {
 		return '';
 	}
@@ -39,7 +39,7 @@ export const replace = function replace(str, data = {}) {
 		},
 		...data,
 	};
-	return Object.entries(options).reduce((ret, [key, value]) => replacekey(ret, key, value), translate(str));
+	return Object.entries(options).reduce((ret, [key, value]) => replacekey(ret, key, value, nonEscapeKeys), translate(str));
 };
 
 const nonEscapeKeys = ['room_path'];

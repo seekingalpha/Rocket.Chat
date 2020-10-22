@@ -134,7 +134,7 @@ export function getEmailData({
 	const emailSubject = Mailer.replace(settings.get(subjectKey), {
 		user: username,
 		room: roomTypes.getRoomName(room.t, room),
-	});
+	}, ['room']);
 	const content = getEmailContent({
 		message,
 		user: receiver,
