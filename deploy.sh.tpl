@@ -26,8 +26,9 @@ function get_rc {
     $AWS s3 cp --quiet $s3_path .
     tar zxf $fname
     rm -f $fname
-    cd ./bundle
-    npm install --quiet --production >/dev/null
+    cd ./rocket.chat-$RC_VERSION/bundle
+    npm install --production
+#    npm install --quiet --production >/dev/null
 }
 
 function update_current_version_marker {
