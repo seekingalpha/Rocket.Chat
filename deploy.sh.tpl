@@ -4,7 +4,7 @@ AWS_DEFAULT_REGION="us-west-2"
 ASGS="rocketchat rocketchat-upm"
 RC_INSTANCES=$(mktemp)
 RC_VERSION=$version
-RC_ENV=$RC_ENV
+RC_ENV=$ENV
 S3_BUCKET="seekingalpha-rocketchat-builds"
 USER="deploy"
 
