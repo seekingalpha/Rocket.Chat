@@ -22,11 +22,10 @@ function get_rc {
     local s3_path
     fname="rocket.chat-$RC_VERSION.tgz"
     s3_path="s3://$S3_BUCKET/$fname"
-    rm -rf /tmp/bundle # Clean up previous unpacked versions if any
     $AWS s3 cp --quiet $s3_path .
     tar zxf $fname
     rm -f $fname
-    cd ./rocket.chat-$RC_VERSION/bundle
+    cd ./bundle/programs/server
     npm install --production
 #    npm install --quiet --production >/dev/null
 }
