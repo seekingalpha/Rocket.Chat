@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-AWS=$(which aws)
+AWS="/usr/local/bin/aws"
 AWS_DEFAULT_REGION="us-west-2"
 ASGS="rocketchat rocketchat-upm"
 RC_INSTANCES=$(mktemp)
-RC_VERSION=$1
-RC_ENV=$2
+RC_VERSION=$version
+RC_ENV=$RC_ENV
 S3_BUCKET="seekingalpha-rocketchat-builds"
 USER="deploy"
 
@@ -22,6 +22,8 @@ function get_rc {
     local s3_path
     fname="rocket.chat-$RC_VERSION.tgz"
     s3_path="s3://$S3_BUCKET/$fname"
+    echo "RC filename is $fname"
+    echo "s3 path is $s3_path"
     rm -rf /tmp/bundle # Clean up previous unpacked versions if any
     $AWS s3 cp --quiet $s3_path $local_path
     tar zxf $fname
