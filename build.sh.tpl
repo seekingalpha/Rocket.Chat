@@ -24,10 +24,10 @@ build_rc () {
     echo "Downloading Rocket.Chat installation files.."
     $AWS s3 cp --quiet "$s3_path" .
     echo "Unpacking Rocket.Chat files..."
-    tar zxvf "$fname"
+    tar zxf "$fname"
     rm -f "$fname"
     echo "Installing modules..."
-    npm install --production --prefix ./bundle/programs/server
+    npm install --quiet --production --prefix ./bundle/programs/server
     echo "Copying to the new location..."
     sudo cp -r ./bundle $RC_DIR-new/
 }
