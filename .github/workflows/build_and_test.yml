@@ -391,6 +391,7 @@ jobs:
       env:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_USER_GITHUB_ROCKETCHAT_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_USER_GITHUB_ROCKETCHAT_SECRET_ACCESS_KEY }}
+        AWS_DEFAULT_REGION: us-west-2
       run: |
         if [[ '${{ github.event_name }}' = 'release' ]]; then
           GIT_TAG="${GITHUB_REF#*tags/}"
