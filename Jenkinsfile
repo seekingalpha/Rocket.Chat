@@ -1,0 +1,131 @@
+freeStyleJob('pipeline-example') {
+    description('''\
+Grab a tarball from S3 and deploy it to <b>staging</b> using (p)ssh.
+''')
+    keepDependencies(false)
+    properties {
+        logRotator {
+            daysToKeep(-1)
+            numToKeep(30)
+            artifactDaysToKeep(-1)
+            artifactNumToKeep(-1)
+        }
+    }
+    parameters {
+        stringParam('version', null, '''RC version + git commit number.
+
+For a list of available versions, look in
+
+   s3://seekingalpha-rocketchat-builds/
+
+for rocket.chat-VERSION.tgz
+
+
+
+<p>
+Special versions:
+</p>
+
+<ul>
+<li>latest  = version last built
+
+<li>staging = version last deployed to staging
+
+<li>production = version last deployed to production
+
+</ul>''')
+    }
+    scm {
+        git {
+            remote {
+                url('git@github.com:seekingalpha/Rocket.Chat.git')
+                credentials('github-pipeline')
+            }
+            branches('*/sa-devops')
+            extensions {
+            }
+            configure {
+                'doGenerateSubmoduleConfigurations'('false')
+            }
+
+        }
+    }
+    label()
+    disabled(false)
+    triggers {
+    }
+    concurrentBuild(false)
+    steps {
+        shell('''\
+#!/bin/bash
+
+case $JOB_BASE_NAME in
+  *staging*)    environment=staging ;;
+  *production*) environment=production ;;
+  *)            echo "ERROR: CanвАЩt infer environment from job name!"; exit 99 ;;
+esac
+
+asg_names="rocketchat rocketchat-upm"
+
+## Strip off the trailing letter from the region: Use us-west-2, not us-west-2a
+export AWS_DEFAULT_REGION=$(ec2metadata --availability-zone | awk '{print substr($0,1,length($0)-1)}')
+
+## Exported variables ending in _ARG are for expansion in the .tpl template files.
+export AWS_DEFAULT_REGION_ARG=$AWS_DEFAULT_REGION
+export ENV_ARG=$environment
+export RC_DIR_ARG="/opt/rocket-chat"
+export S3_BUCKET_ARG="seekingalpha-rocketchat-builds"
+
+## Render Script Templates
+## Note: $version is a Jenkins job parameter
+envsubst_varlist='$AWS_DEFAULT_REGION_ARG,$ENV_ARG,$RC_DIR_ARG,$S3_BUCKET_ARG,$version'
+envsubst "$envsubst_varlist" < ./build.sh.tpl  > ./build.sh
+envsubst "$envsubst_varlist" < ./deploy.sh.tpl > ./deploy.sh
+
+## When deploying to production, run using the "rocketchat-deploy" role
+if [[ $environment == production ]] ; then
+  assumed_role_json=$(
+    aws \\
+      --output json \\
+      sts assume-role \\
+      --role-arn arn:aws:iam::618678420696:role/switch-account-deploy-rocket-chat \\
+      --role-session-name rocketchat-deploy
+  )
+  assumed_role_variables=$(
+    echo "${assumed_role_json}" | jq -r \\
+    '
+      "export AWS_SESSION_TOKEN=" + .Credentials.SessionToken + "\\n" +
+      "export AWS_ACCESS_KEY_ID=" + .Credentials.AccessKeyId + "\\n" +
+      "export AWS_SECRET_ACCESS_KEY=" + .Credentials.SecretAccessKey + "\\n"
+    '
+  )
+  eval "$assumed_role_variables"
+fi
+
+## Get instance IPs one per line (multiline string)
+rc_instance_ips=$(
+  for asg in $asg_names ; do
+      aws ec2 describe-instances \\
+          --filters Name=instance-state-name,Values=running \\
+                    Name=tag:aws:autoscaling:groupName,Values=$asg \\
+          --query "Reservations[*].Instances[*].NetworkInterfaces[0].PrivateIpAddress" \\
+          --output text
+  done
+)
+
+## Parallel build via pssh
+parallel-ssh \\
+  --inline --timeout 300 --user deploy \\
+  --hosts <(echo "$rc_instance_ips") \\
+  --send-input < ./build.sh
+
+## One by one deploy via ssh
+for host in $rc_instance_ips ; do
+  ssh -t -l deploy $host < ./deploy.sh
+done
+
+''')
+    }
+    publishers {
+    }
+}
