@@ -14,7 +14,6 @@ pipeline {
                     withEnv(["version=$version"]) {
                         shell('./Jenkinsfile.sh')
                     }
-                    cleanWs()
                 }
             }
         }
