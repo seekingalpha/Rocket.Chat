@@ -12,7 +12,7 @@ pipeline {
             steps {
                 script {
                     withEnv(["version=$version"]) {
-                        shell('./Jenkinsfile.sh')
+                        sh './Jenkinsfile.sh'
                     }
                 }
             }
