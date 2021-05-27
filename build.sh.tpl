@@ -20,7 +20,8 @@ build_rc () {
     local s3_path
     fname="rocket.chat-$RC_VERSION.tgz"
     s3_path="s3://$S3_BUCKET/$fname"
-    cd $(mktemp -d)
+    tmprcdir=$(mktemp -d)
+    cd $tmprcdir
     echo "Downloading Rocket.Chat installation files.."
     $AWS s3 cp --quiet "$s3_path" .
     echo "Unpacking Rocket.Chat files..."
@@ -30,6 +31,7 @@ build_rc () {
     npm install --quiet --production --prefix ./bundle/programs/server
     echo "Copying to the new location..."
     sudo cp -r ./bundle $RC_DIR-new/
+    rm -rf $tmprcdir
 }
 
 prepare_directories
