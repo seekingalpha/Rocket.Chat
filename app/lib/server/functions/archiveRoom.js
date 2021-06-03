@@ -6,6 +6,7 @@ import { callbacks } from '../../../callbacks';
 export const archiveRoom = function(rid) {
 	Rooms.archiveById(rid);
 	Subscriptions.archiveByRoomId(rid);
+	Subscriptions.clearUnreadByRoomId(rid);
 
 	callbacks.run('afterRoomArchived', Rooms.findOneById(rid), Meteor.user());
 };
