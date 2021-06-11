@@ -687,23 +687,6 @@ export class Subscriptions extends Base {
 		return this.update(query, update, { multi: true });
 	}
 
-	clearUnreadByRoomId(roomId) {
-		const query = {
-			rid: roomId,
-			unread: {
-				$gt: 0,
-			},
-		};
-
-		const update = {
-			$set: {
-				unread: 0,
-			},
-		};
-
-		return this.update(query, update, { multi: true });
-	}
-
 	setAsUnreadByRoomIdAndUserId(roomId, userId, firstMessageUnreadTimestamp) {
 		const query = {
 			rid: roomId,
