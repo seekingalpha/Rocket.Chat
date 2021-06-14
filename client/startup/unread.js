@@ -11,6 +11,7 @@ import { settings } from '../../app/settings';
 const fetchSubscriptions = () => ChatSubscription.find({
 	open: true,
 	hideUnreadStatus: { $ne: true },
+	archived: { $ne: true },
 }, {
 	fields: {
 		unread: 1,
