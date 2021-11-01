@@ -15,7 +15,7 @@ env:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
 
     steps:
 
@@ -184,7 +184,7 @@ jobs:
         path: /tmp/build
 
   test:
-    runs-on: ubuntu-16.04
+    runs-on: ubuntu-20.04
     needs: build
 
     strategy:
@@ -258,7 +258,7 @@ jobs:
         for i in $(seq 1 5); do (docker exec mongo mongo rocketchat --eval 'db.dropDatabase()') && npm run testci && s=0 && break || s=$? && sleep 1; done; (exit $s)
 
 #   notification:
-#     runs-on: ubuntu-latest
+#     runs-on: ubuntu-20.04
 #     needs: test
 
 #     steps:
@@ -272,7 +272,7 @@ jobs:
 #         token: ${{ secrets.GITHUB_TOKEN }}
 
   build-image-pr:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     if: false  # Seeking Alpha is not using Pull Requests right now, so disable this
 
     strategy:
@@ -399,7 +399,7 @@ jobs:
         docker push $IMAGE_NAME
 
   copy-to-S3:  # "Deploy" by copying the tarball to S3.  Use Jenkins to do the actual deployment to our rocketchat servers.
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     needs: test
 
     steps:
@@ -453,7 +453,7 @@ jobs:
 
   image-build: # Build/Publish Docker image
     if: false  # Seeking Alpha does not use Docker images for Rocket.Chat, so we don't need this
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     needs: copy-to-S3
 
     strategy:
@@ -531,7 +531,7 @@ jobs:
 
   services-image-build:  # Build/Publish Docker images for microservices architecture
     if: false  # Seeking Alpha does not use Docker images for Rocket.Chat, so we don't need this
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     needs: copy-to-S3
 
     strategy:
