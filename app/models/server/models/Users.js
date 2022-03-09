@@ -18,6 +18,9 @@ const queryStatusAgentOnline = (extraFilters = {}) => ({
 	...extraFilters,
 	...settings.get('Livechat_enabled_when_agent_idle') === false && { statusConnection: { $ne: 'away' } },
 });
+
+const caseInsensitiveCollation = { locale: 'en', strength: 2 };
+
 export class Users extends Base {
 	constructor(...args) {
 		super(...args);
@@ -644,37 +647,27 @@ export class Users extends Base {
 		return this.findOne({ importIds: _id }, options);
 	}
 
+	findOneIgnoringCase(query, options) {
+		return this.find(query, options).collation(caseInsensitiveCollation).fetch()[0];
+	}
+
 	findOneByUsernameIgnoringCase(username, options) {
-		if (typeof username === 'string') {
-			username = new RegExp(`^${ escapeRegExp(username) }$`, 'i');
-		}
-
-		const query = { username };
-
-		return this.findOne(query, options);
+		return this.findOneIgnoringCase({ username }, options);
 	}
 
 	findOneByUsernameAndRoomIgnoringCase(username, rid, options) {
-		if (typeof username === 'string') {
-			username = new RegExp(`^${ escapeRegExp(username) }$`, 'i');
-		}
-
 		const query = {
 			__rooms: rid,
 			username,
 		};
 
-		return this.findOne(query, options);
+		return this.findOneIgnoringCase(query, options);
 	}
 
 	findOneByUsernameAndServiceNameIgnoringCase(username, userId, serviceName, options) {
-		if (typeof username === 'string') {
-			username = new RegExp(`^${ escapeRegExp(username) }$`, 'i');
-		}
-
 		const query = { username, [`services.${ serviceName }.id`]: userId };
 
-		return this.findOne(query, options);
+		return this.findOneIgnoringCase(query, options);
 	}
 
 	findOneByEmailAddressAndServiceNameIgnoringCase(emailAddress, userId, serviceName, options) {
@@ -801,11 +794,11 @@ export class Users extends Base {
 	findByUsernamesIgnoringCase(usernames, options) {
 		const query = {
 			username: {
-				$in: usernames.filter(Boolean).map((u) => new RegExp(`^${ escapeRegExp(u) }$`, 'i')),
+				$in: usernames.filter(Boolean),
 			},
 		};
 
-		return this.find(query, options);
+		return this.find(query, options).collation(caseInsensitiveCollation);
 	}
 
 	findActive(options = {}) {

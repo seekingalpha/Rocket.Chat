@@ -66,9 +66,8 @@ export function generateUsernameSuggestion(user) {
 
 	usernames.push(settings.get('Accounts_DefaultUsernamePrefixSuggestion'));
 
-	let index = Users.find({ username: new RegExp(`^${ usernames[0] }-[0-9]+`) }).count();
-	const username = '';
-	while (!username) {
+	let index = 1;
+	while (true) {
 		if (usernameIsAvaliable(`${ usernames[0] }-${ index }`)) {
 			return `${ usernames[0] }-${ index }`;
 		}

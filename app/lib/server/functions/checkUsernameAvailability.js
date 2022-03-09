@@ -24,9 +24,9 @@ export const checkUsernameAvailability = function(username) {
 	}
 
 	// Make sure no users are using this username
-	const existingUser = Meteor.users.findOne({
-		username: toRegExp(username),
-	}, { fields: { _id: 1 } });
+	const existingUser = Meteor.users.find({
+		username: username,
+	}, { fields: { _id: 1 } }).collation({ locale: 'en', strength: 2 }).fetch()[0];
 	if (existingUser) {
 		return false;
 	}
