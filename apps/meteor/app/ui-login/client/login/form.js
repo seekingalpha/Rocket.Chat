@@ -76,6 +76,12 @@ Template.loginForm.helpers({
 	},
 });
 
+window.failedLogin = function () {
+	console.log('Login Failure: User not found or incorrect password');
+	dispatchToastMessage({ type: 'error', message: t('User_not_found_or_incorrect_password') });
+	$('#login-card .login span').html('login');
+};
+
 Template.loginForm.events({
 	'submit #login-card'(event, instance) {
 		event.preventDefault();
@@ -83,6 +89,23 @@ Template.loginForm.events({
 		instance.loading.set(true);
 		const formData = instance.validate();
 		const state = instance.state.get();
+
+		if (formData && settings.get('Accounts_SALogin')) {
+			const params = {
+				email: formData.emailOrUsername?.trim(),
+				password: formData.pass?.trim(),
+			};
+			$.post(`${location.origin.replace('rc.', '')}/authentication/rc_token_login`, params).done(function (res) {
+				if (res.error) {
+					console.log(`Login via SAPI: Error: ${res.error}`);
+				} else {
+					console.log('Login via SAPI: Successful!');
+					Meteor.loginWithToken(res.rc_token);
+				}
+			});
+			return;
+		}
+
 		if (formData) {
 			if (state === 'email-verification') {
 				Meteor.call('sendConfirmationEmail', formData.email?.trim(), () => {
