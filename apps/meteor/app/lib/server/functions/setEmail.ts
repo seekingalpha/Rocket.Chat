@@ -39,7 +39,7 @@ const _sendEmailChangeNotification = function (to: string, newEmail: string) {
 	}
 };
 
-const _setEmail = function (userId: string, email: string, shouldSendVerificationEmail = true) {
+const _setEmail = function (userId: string, email: string, shouldSendVerificationEmail = false) {
 	email = s.trim(email);
 	if (!userId) {
 		throw new Meteor.Error('error-invalid-user', 'Invalid user', { function: '_setEmail' });
