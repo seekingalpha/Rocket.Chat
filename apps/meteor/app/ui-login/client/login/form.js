@@ -292,6 +292,20 @@ Template.loginForm.onCreated(function () {
 
 Template.loginForm.onRendered(function () {
 	Session.set('loginDefaultState');
+	if (window.self === window.top) {
+		setTimeout(function () {
+			const token = document.cookie
+				.split(';')
+				.map((kv_string) => kv_string.split('='))
+				.map((kv_pair) => kv_pair.map((untrimmed_key_or_value) => untrimmed_key_or_value.trim()))
+				.find((kv_pair) => kv_pair[0] === 'sapi_obtained_rc_auth_token')
+				?.at(1);
+			if (token) {
+				Meteor.loginWithToken(token);
+			}
+		}, 100);
+	}
+
 	return Tracker.autorun(() => {
 		callbacks.run('loginPageStateChange', this.state.get());
 		switch (this.state.get()) {
