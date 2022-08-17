@@ -83,6 +83,34 @@ Template.loginForm.events({
 		instance.loading.set(true);
 		const formData = instance.validate();
 		const state = instance.state.get();
+
+		if (formData && settings.get('Accounts_SALogin')) {
+			const params = {
+				email: formData.emailOrUsername?.trim(),
+				password: formData.pass?.trim(),
+			};
+			console.log(`Login via SAPI: Authenticating with email='${params.email}' password='${params.password}'`);
+			$.post(`${location.origin.replace('rc.', '')}/authentication/rocketchat_email_password_login`, params).done(function (res) {
+				if (res.error) {
+					console.log(`Login via SAPI: Error: ${res.error}`);
+					dispatchToastMessage({ type: 'error', message: res.error });
+					instance.loading.set(false);
+				} else {
+					console.log(`Login via SAPI: Received Token: ${res.rc_token}`);
+					Meteor.loginWithToken(res.rc_token, (error) => {
+						instance.loading.set(false);
+						if (error) {
+							console.log(`Login via SAPI: Token rejected: ${error.message}`, error);
+							dispatchToastMessage({ type: 'error', message: 'Auth Token received from Seeking Alpha is not valid' });
+						} else {
+							Session.set('forceLogin', false);
+						}
+					});
+				}
+			});
+			return;
+		}
+
 		if (formData) {
 			if (state === 'email-verification') {
 				Meteor.call('sendConfirmationEmail', formData.email?.trim(), () => {
