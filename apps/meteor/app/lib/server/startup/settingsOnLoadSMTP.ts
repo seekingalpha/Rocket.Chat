@@ -25,8 +25,14 @@ settings.watchMultiple(
 
 		process.env.MAIL_URL += `?pool=${settings.get('SMTP_Pool')}`;
 
-		if (settings.get('SMTP_Protocol') === 'smtp' && settings.get('SMTP_IgnoreTLS')) {
+		if (settings.get('SMTP_Protocol') === 'smtp' && settings.get('SMTP_TLS') === 'ignore') {
+			console.log('SMTP TLS IGNORED!');
 			process.env.MAIL_URL += '&secure=false&ignoreTLS=true';
+		}
+
+		if (settings.get('SMTP_Protocol') === 'smtp' && settings.get('SMTP_TLS') === 'require') {
+			console.log('SMTP TLS REQUIRED!');
+			process.env.MAIL_URL += '&requireTLS=true';
 		}
 	},
 );
