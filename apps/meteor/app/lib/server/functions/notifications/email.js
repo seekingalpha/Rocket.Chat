@@ -149,7 +149,12 @@ export async function getEmailData({ message, receiver, sender, subscription, ro
 		data: {
 			room_path,
 		},
-		headers: {},
+		headers: {
+			// Seeking Alpha’s LogStasher setup lets us log details about the email we send, via custom headers.
+			// These is reported in Kibana’s `email-*` index in the columns `xheaders.X-SA-{messageid,workid}`
+			'X-SA-messageid': 'Offline_Message_Notification',
+			'X-SA-workid': `${room.t};${room.name || room._id};${message._id};`,
+		},
 	};
 
 	if (sender.emails?.length > 0 && settings.get('Add_Sender_To_ReplyTo')) {
