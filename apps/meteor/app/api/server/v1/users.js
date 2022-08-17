@@ -5,7 +5,7 @@ import { TAPi18n } from 'meteor/rocketchat:tap-i18n';
 import _ from 'underscore';
 
 import { Users, Subscriptions } from '../../../models/server';
-import { Users as UsersRaw } from '../../../models/server/raw';
+import { Users as UsersRaw, Subscriptions as SubscriptionsRaw } from '../../../models/server/raw';
 import { hasPermission } from '../../../authorization';
 import { settings } from '../../../settings/server';
 import { getURL } from '../../../utils';
@@ -215,6 +215,23 @@ API.v1.addRoute(
 
 			return API.v1.success({
 				presence: user.status,
+			});
+		},
+	},
+);
+
+API.v1.addRoute(
+	'users.unreadCount',
+	{ authRequired: true },
+	{
+		async get() {
+			const user = this.getUserFromParams();
+			const unreadCount = (await SubscriptionsRaw.getBadgeCount(user._id)) || 0;
+
+			return API.v1.success({
+				data: {
+					unread: unreadCount,
+				},
 			});
 		},
 	},
