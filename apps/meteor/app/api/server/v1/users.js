@@ -221,6 +221,31 @@ API.v1.addRoute(
 );
 
 API.v1.addRoute(
+	'users.unreadCount',
+	{ authRequired: true },
+	{
+		get() {
+			const user = this.getUserFromParams();
+			// WIP: Not sure how to invoke this.
+			// I *might* need to invoke this on SubscriptionsRaw
+			//
+			// Attempt #1:
+			// const unreadCount = await Subscriptions.getBadgeCount(user._id) || 0;
+			// => Unexpected reserved word 'await'
+			//
+			// Attempt #2:
+			const unreadCount = Subscriptions.getBadgeCount(user._id) || 0;
+
+			return API.v1.success({
+				data: {
+					unread: unreadCount,
+				},
+			});
+		},
+	},
+);
+
+API.v1.addRoute(
 	'users.info',
 	{ authRequired: true },
 	{
