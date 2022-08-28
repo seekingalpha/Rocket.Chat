@@ -315,6 +315,7 @@ API.v1.addRoute(
 						inclusiveFieldsKeys.includes('emails') && 'emails.address.*',
 						inclusiveFieldsKeys.includes('username') && 'username.*',
 						inclusiveFieldsKeys.includes('name') && 'name.*',
+						inclusiveFieldsKeys.includes('customFields') && 'customFields.*',
 					].filter(Boolean),
 					this.queryOperations,
 				)
