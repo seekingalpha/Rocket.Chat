@@ -6,8 +6,7 @@ on:
   pull_request:
     branches: '**'
   push:
-    branches:
-      - develop
+    branches: '**'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
@@ -18,45 +17,18 @@ env:
   MONGO_URL: mongodb://localhost:27017/rocketchat?replicaSet=rs0&directConnection=true
   MONGO_OPLOG_URL: mongodb://mongodb:27017/local?replicaSet=rs0&directConnection=true
   TOOL_NODE_FLAGS: --max_old_space_size=4096
-  TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
 
 jobs:
   release-versions:
     runs-on: ubuntu-latest
     outputs:
-      release: ${{ steps.by-tag.outputs.release }}
-      latest-release: ${{ steps.latest.outputs.latest-release }}
-      docker-tag: ${{ steps.docker.outputs.docker-tag }}
-      gh-docker-tag: ${{ steps.docker.outputs.gh-docker-tag }}
+      release: "seeking-alpha--release"
+      latest-release: "seeking-alpha--latest-release"
+      docker-tag: "seeking-alpha--docker-tag"
+      gh-docker-tag: "seeking-alpha--gh-docker-tag"
     steps:
-      - id: by-tag
-        run: |
-          if echo "$GITHUB_REF_NAME" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$' ; then
-            RELEASE="latest"
-          elif echo "$GITHUB_REF_NAME" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+-rc\.[0-9]+$' ; then
-            RELEASE="release-candidate"
-          fi
-          echo "RELEASE: ${RELEASE}"
-          echo "::set-output name=release::${RELEASE}"
-
-      - id: latest
-        run: |
-          LATEST_RELEASE="$(
-            git -c 'versionsort.suffix=-' ls-remote -t --exit-code --refs --sort=-v:refname "https://github.com/$GITHUB_REPOSITORY" '*' |
-              awk -F/ '$NF !~ /rc|beta/ { print $NF; exit }'
-          )"
-          echo "LATEST_RELEASE: ${LATEST_RELEASE}"
-          echo "::set-output name=latest-release::${LATEST_RELEASE}"
-
-      - id: docker
-        run: |
-          if [[ '${{ github.event_name }}' == 'pull_request' ]]; then
-            DOCKER_TAG="pr-${{ github.event.number }}"
-          else
-            DOCKER_TAG="gh-${{ github.run_id }}"
-          fi
-          echo "DOCKER_TAG: ${DOCKER_TAG}"
-          echo "::set-output name=gh-docker-tag::${DOCKER_TAG}"
+      - name: Just hardcode the release names
+        run: true
 
   build:
     runs-on: ubuntu-20.04
@@ -142,8 +114,11 @@ jobs:
       - name: TurboRepo local server
         uses: felixmosh/turborepo-gh-artifacts@v1
         with:
-          repo-token: ${{ secrets.RC_TURBO_GH_TOKEN }}
-          server-token: ${{ secrets.TURBO_SERVER_TOKEN }}
+          # See:
+          #   - https://github.com/felixmosh/turborepo-gh-artifacts
+          #   - https://turborepo.org/docs/ci/github-actions
+          repo-token: ${{ secrets.GITHUB_TOKEN }}          # Defined automatically by GitHub
+          server-token: ${{ secrets.TURBO_SERVER_TOKEN }}  # Defined manually to random string
 
       - name: Lint
         run: yarn lint --api="http://127.0.0.1:9080" --token="${{ secrets.TURBO_SERVER_TOKEN }}" --team='rc'
@@ -155,7 +130,7 @@ jobs:
         run: yarn turbo run typecheck --api="http://127.0.0.1:9080" --token="${{ secrets.TURBO_SERVER_TOKEN }}" --team='rc'
 
       - name: Reset Meteor
-        if: startsWith(github.ref, 'refs/tags/') == 'true' || github.ref == 'refs/heads/develop'
+        if: true  # To be safe, let's _always_ reset this and regenerate
         run: |
           cd ./apps/meteor
           meteor reset
@@ -223,7 +198,7 @@ jobs:
     strategy:
       matrix:
         node-version: ['14.19.3']
-        mongodb-version: ['4.2', '4.4', '5.0']
+        mongodb-version: ['5.0']
 
     steps:
       - name: Launch MongoDB
@@ -246,7 +221,7 @@ jobs:
       - name: TurboRepo local server
         uses: felixmosh/turborepo-gh-artifacts@v1
         with:
-          repo-token: ${{ secrets.RC_TURBO_GH_TOKEN }}
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
           server-token: ${{ secrets.TURBO_SERVER_TOKEN }}
 
       - name: Unit Test
@@ -391,13 +366,14 @@ jobs:
           path: ./apps/meteor/tests/e2e/.playwright*
 
   test-ee:
+    if: false
     runs-on: ubuntu-20.04
     needs: [build, release-versions]
 
     strategy:
       matrix:
         node-version: ['14.19.3']
-        mongodb-version-ee: ['4.4']
+        mongodb-version-ee: ['5.0']
 
     steps:
       - name: Launch MongoDB
@@ -417,7 +393,7 @@ jobs:
       - name: TurboRepo local server
         uses: felixmosh/turborepo-gh-artifacts@v1
         with:
-          repo-token: ${{ secrets.RC_TURBO_GH_TOKEN }}
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
           server-token: ${{ secrets.TURBO_SERVER_TOKEN }}
 
       - name: yarn install
@@ -573,9 +549,8 @@ jobs:
           name: e2e-ee-coverage
           path: ./apps/meteor/coverage*
 
-  deploy:
+  copy-to-S3:  # "Deploy" by copying the tarball to S3.  Use Jenkins to do the actual deployment to our rocketchat servers.
     runs-on: ubuntu-20.04
-    if: github.event_name == 'release' || github.ref == 'refs/heads/develop'
     needs: [test, release-versions]
 
     steps:
@@ -589,13 +564,9 @@ jobs:
 
       - name: Publish assets
         env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_DEFAULT_REGION: 'us-east-1'
-          GPG_PASSWORD: ${{ secrets.GPG_PASSWORD }}
-          REDHAT_REGISTRY_PID: ${{ secrets.REDHAT_REGISTRY_PID }}
-          REDHAT_REGISTRY_KEY: ${{ secrets.REDHAT_REGISTRY_KEY }}
-          UPDATE_TOKEN: ${{ secrets.UPDATE_TOKEN }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_USER_GITHUB_ROCKETCHAT_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_USER_GITHUB_ROCKETCHAT_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: us-west-2
         run: |
           REPO_VERSION=$(node -p "require('./package.json').version")
           if [[ '${{ github.event_name }}' = 'release' ]]; then
@@ -621,40 +592,22 @@ jobs:
           fi;
           ROCKET_DEPLOY_DIR="/tmp/deploy"
           FILENAME="$ROCKET_DEPLOY_DIR/rocket.chat-$ARTIFACT_NAME.tgz";
+          FILENAME_LATEST="$ROCKET_DEPLOY_DIR/rocket.chat-latest.tgz";
 
-          aws s3 cp s3://rocketchat/sign.key.gpg .github/sign.key.gpg
 
           mkdir -p $ROCKET_DEPLOY_DIR
 
-          cp .github/sign.key.gpg /tmp
-          gpg --yes --batch --passphrase=$GPG_PASSWORD /tmp/sign.key.gpg
-          gpg --allow-secret-key-import --import /tmp/sign.key
-          rm /tmp/sign.key
 
           ln -s /tmp/build/Rocket.Chat.tar.gz "$FILENAME"
-          gpg --armor --detach-sign "$FILENAME"
+          ln -s /tmp/build/Rocket.Chat.tar.gz "$FILENAME_LATEST"
 
-          aws s3 cp $ROCKET_DEPLOY_DIR/ s3://download.rocket.chat/build/ --recursive
+          aws s3 cp $ROCKET_DEPLOY_DIR/ s3://seekingalpha-rocketchat-builds/ --recursive
 
-          curl -H "Content-Type: application/json" -H "X-Update-Token: $UPDATE_TOKEN" -d \
-              "{\"nodeVersion\": \"14.19.3\", \"compatibleMongoVersions\": [\"4.2\", \"4.4\", \"5.0\"], \"commit\": \"$GITHUB_SHA\", \"tag\": \"$RC_VERSION\", \"branch\": \"$GIT_BRANCH\", \"artifactName\": \"$ARTIFACT_NAME\", \"releaseType\": \"$RC_RELEASE\"}" \
-              https://releases.rocket.chat/update
-
-          # Makes build fail if the release isn't there
-          curl --fail https://releases.rocket.chat/$RC_VERSION/info
-
-          if [[ $GIT_TAG ]]; then
-            curl -X POST \
-              https://connect.redhat.com/api/v2/projects/$REDHAT_REGISTRY_PID/build \
-              -H "Authorization: Bearer $REDHAT_REGISTRY_KEY" \
-              -H 'Cache-Control: no-cache' \
-              -H 'Content-Type: application/json' \
-              -d '{"tag":"'$GIT_TAG'"}'
-          fi
 
   docker-image-publish:
+    if: false  # Seeking Alpha does not use Docker images for Rocket.Chat, so we don't need this
     runs-on: ubuntu-20.04
-    needs: [deploy, build-docker-preview, release-versions]
+    needs: [copy-to-S3, build-docker-preview, release-versions]
 
     strategy:
       matrix:
@@ -734,8 +687,9 @@ jobs:
           fi
 
   services-docker-image-publish:
+    if: false  # Seeking Alpha does not use Docker images for Rocket.Chat, so we don't need this
     runs-on: ubuntu-20.04
-    needs: [deploy, release-versions]
+    needs: [copy-to-S3, release-versions]
 
     strategy:
       matrix:
