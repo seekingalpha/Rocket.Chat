@@ -17,7 +17,7 @@ import { Accounts } from 'meteor/accounts-base';
 import { Match, check } from 'meteor/check';
 import { TAPi18n } from 'meteor/rocketchat:tap-i18n';
 import type { IExportOperation, IPersonalAccessToken, IUser } from '@rocket.chat/core-typings';
-import { Users as UsersRaw } from '@rocket.chat/models';
+import { Users as UsersRaw, Subscriptions as SubscriptionsRaw } from '@rocket.chat/models';
 
 import { Users, Subscriptions } from '../../../models/server';
 import { hasPermission } from '../../../authorization/server';
@@ -379,6 +379,23 @@ API.v1.addRoute(
 
 			return API.v1.success({
 				user,
+			});
+		},
+	},
+);
+
+API.v1.addRoute(
+	'users.unreadCount',
+	{ authRequired: true },
+	{
+		async get() {
+			const user = this.getUserFromParams();
+			const unreadCount = (await SubscriptionsRaw.getBadgeCount(user._id)) || 0;
+
+			return API.v1.success({
+				data: {
+					unread: unreadCount,
+				},
 			});
 		},
 	},
