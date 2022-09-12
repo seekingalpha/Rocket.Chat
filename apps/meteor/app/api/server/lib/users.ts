@@ -91,6 +91,7 @@ export function getNonEmptyFields(fields: Record<string, 1 | 0>): Record<string,
 		avatarETag: 1,
 		lastLogin: 1,
 		type: 1,
+		customFields: 1,
 	} as const;
 
 	if (!fields || Object.keys(fields).length === 0) {
