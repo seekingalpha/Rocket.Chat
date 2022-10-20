@@ -1,4 +1,4 @@
-import { IRoom } from '@rocket.chat/core-typings';
+import { IRoom, IMessage } from '@rocket.chat/core-typings';
 import { Meteor } from 'meteor/meteor';
 import { Tracker } from 'meteor/tracker';
 
@@ -17,7 +17,12 @@ const loadMissedMessages = async function (rid: IRoom['_id']): Promise<void> {
 		const result = await callWithErrorHandling('loadMissedMessages', rid, lastMessage.ts);
 		if (result) {
 			const subscription = ChatSubscription.findOne({ rid });
-			await Promise.all(Array.from(result).map((msg) => upsertMessage({ msg, subscription })));
+			const typesToFilterOut = ['au', 'ru'];
+			await Promise.all(
+				Array.from(result)
+					.filter((msg: IMessage) => !typesToFilterOut.includes(msg.t || ''))
+					.map((msg) => upsertMessage({ msg, subscription })),
+			);
 		}
 	} catch (error) {
 		console.error(error);

@@ -174,6 +174,9 @@ const computation = Tracker.autorun(() => {
 				if (record.streamActive !== true) {
 					(
 						roomMessagesStream.on(record.rid, async (msg) => {
+							if (['au', 'ru'].includes(msg.t)) {
+								return;
+							}
 							// Should not send message to room if room has not loaded all the current messages
 							// if (RoomHistoryManager.hasMoreNext(record.rid) !== false) {
 							// 	return;
