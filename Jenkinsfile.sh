@@ -70,3 +70,10 @@ versionized_file="rocket.chat-$version.tgz"
 current_marker_file="rocket.chat-$environment.tgz"
 echo "Marking up the latest version for $environment..."
 aws s3 cp "s3://$S3_BUCKET_ARG/$versionized_file" "s3://$S3_BUCKET_ARG/$current_marker_file" --acl public-read
+
+## flush CDN after letting the last host a bit more time to truly come up
+echo "Flushing $environment CDN"
+sleep 30
+FASTLY_SERVICE=$(aws ssm get-parameter --name /rocketchat/fastly_service_id --with-decryption --query Parameter.Value --output text)
+FASTLY_TOKEN=$(aws ssm get-parameter --name /rocketchat/fastly_api_key --with-decryption --query Parameter.Value --output text)
+curl -X POST -H "Fastly-Key: $FASTLY_TOKEN" "https://api.fastly.com/service/$FASTLY_SERVICE/purge/$environment"
