@@ -20,8 +20,8 @@ export S3_BUCKET_ARG="seekingalpha-rocketchat-builds"
 ## Render Script Templates
 ## Note: $version is a Jenkins job parameter
 envsubst_varlist='$AWS_DEFAULT_REGION_ARG,$ENV_ARG,$RC_DIR_ARG,$S3_BUCKET_ARG,$version'
-envsubst "$envsubst_varlist" < ./build.sh.tpl  > ./build.sh
-envsubst "$envsubst_varlist" < ./deploy.sh.tpl > ./deploy.sh
+envsubst "$envsubst_varlist" < ./pre_install.sh.tpl  > ./pre_install.sh
+envsubst "$envsubst_varlist" < ./rotate_version.sh.tpl > ./rotate_version.sh
 
 ## When deploying to production, run using the "rocketchat-deploy" role
 if [[ $environment == production ]] ; then
@@ -58,9 +58,9 @@ rc_instance_ips=$(
 parallel-ssh \
   --inline --timeout 300 --user deploy \
   --hosts <(echo "$rc_instance_ips") \
-  --send-input < ./build.sh
+  --send-input < ./pre_install.sh
 
-## One by one deploy via ssh
+## One by one rotate the running code via ssh
 for host in $rc_instance_ips ; do
-  ssh -t -l deploy $host < ./deploy.sh
+  ssh -t -l deploy $host < ./rotate_version.sh
 done
