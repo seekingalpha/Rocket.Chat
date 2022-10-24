@@ -64,3 +64,9 @@ parallel-ssh \
 for host in $rc_instance_ips ; do
   ssh -t -l deploy $host < ./rotate_version.sh
 done
+
+# Update current version marker to deployed in environment
+versionized_file="rocket.chat-$version.tgz"
+current_marker_file="rocket.chat-$environment.tgz"
+echo "Marking up the latest version for $environment..."
+aws s3 cp "s3://$S3_BUCKET_ARG/$versionized_file" "s3://$S3_BUCKET_ARG/$current_marker_file" --acl public-read

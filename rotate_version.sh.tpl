@@ -35,16 +35,6 @@ update_rc () {
     rocket_restart_w_check
 }
 
-# Declare given vesion as latest in current environment
-update_current_version_marker () {
-    local versionized_file
-    local current_marker_file
-    versionized_file="rocket.chat-$RC_VERSION.tgz"
-    current_marker_file="rocket.chat-$RC_ENV.tgz"
-    echo "Marking up the latest version for $RC_ENV..."
-    $AWS s3 cp s3://$S3_BUCKET/$versionized_file s3://$S3_BUCKET/$current_marker_file --acl public-read
-}
-
 # Delete previous version
 cleanup () {
     echo "Cleaning up old directories..."
@@ -52,5 +42,4 @@ cleanup () {
 }
 
 update_rc
-update_current_version_marker
 cleanup
