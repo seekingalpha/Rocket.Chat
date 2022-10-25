@@ -10,7 +10,7 @@ set -e
 
 # Find Rocket.Chat service name
 systemctl_rocket () {
-    find /etc/systemd/system/multi-user.target.wants/ -maxdepth 1 -type l -name 'rocket*' -printf '%f\n' | xargs -r sudo systemctl "$@"
+    find /etc/systemd/system/multi-user.target.wants/ -maxdepth 1 -type l -name 'rocket*' -printf '%f\n' | xargs --no-run-if-empty sudo systemctl "$@"
 }
 
 # Perform server liveness check
