@@ -62,6 +62,8 @@ parallel-ssh \
 
 ## One by one rotate the running code via ssh
 for host in $rc_instance_ips ; do
+  echo "-----------------------------"
+  echo "Applying new version to $host"
   ssh -t -l deploy $host < ./rotate_version.sh
 done
 
