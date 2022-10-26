@@ -8,31 +8,55 @@ S3_BUCKET=$S3_BUCKET_ARG
 
 set -e
 
-# Find Rocket.Chat service name
-systemctl_rocket () {
-    find /etc/systemd/system/multi-user.target.wants/ -maxdepth 1 -type l -name 'rocket*' -printf '%f\n' | xargs --no-run-if-empty sudo systemctl "$@"
+# Find Rocket.Chat service names
+find_rocket () {
+    find /etc/systemd/system/multi-user.target.wants/ -maxdepth 1 -type l -name 'rocket*' -printf '%f\n'
 }
 
-# Perform server liveness check
-rocket_restart_w_check () {
-    echo "Restarting service..."
-    systemctl_rocket restart
-    echo "Waiting service to start..."
+# activate command on Rocket.Chat
+systemctl_rocket () {
+    find_rocket | xargs --no-run-if-empty sudo systemctl "$@"
+}
+
+stop_rc () {
+    echo "Stopping service..."
+    systemctl_rocket stop
+    echo "Waiting for service to stop..."
+    for service in $(find_rocket)
+    do
+        until [ "$(systemctl show $service -p ActiveState)" = "ActiveState=inactive" ]
+        do
+            printf '.'
+            sleep 2
+        done
+    done
+}
+
+start_rocket_and_wait_for_response () {
+    echo "Starting service..."
+    systemctl_rocket start
+    echo "Waiting 1 minute for service to start..."
+    timeout=60
     until $(curl --output /dev/null --silent --head --fail http://localhost)
     do
+        if [ "$timeout" = "0" ]
+        then
+            echo -e "\nWaiting timed out - Rocket.Chat not responding yet"
+            exit 1
+        fi
         printf '.'
+        timeout=$((timeout - 2))
         sleep 2
     done
 }
 
 # Switch previous version with current
 update_rc () {
-    echo "Stopping service..."
-    systemctl_rocket stop
+    stop_rc
     echo "Switching versions..."
     sudo mv $RC_DIR{,-old}
     sudo mv $RC_DIR{-new,}
-    rocket_restart_w_check
+    start_rocket_and_wait_for_response
 }
 
 # Delete previous version
