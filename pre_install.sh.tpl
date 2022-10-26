@@ -30,7 +30,7 @@ build_rc () {
     echo "Installing modules..."
     npm install --quiet --production --prefix ./bundle/programs/server
     echo "Copying to the new location..."
-    sudo cp -r ./bundle $RC_DIR-new/
+    sudo mv ./bundle $RC_DIR-new/
     rm -rf $tmprcdir
 }
 
