@@ -2,7 +2,7 @@
 AWS="/usr/local/bin/aws"
 AWS_DEFAULT_REGION=$AWS_DEFAULT_REGION_ARG
 RC_DIR=$RC_DIR_ARG
-RC_VERSION=$version
+RC_FILE=$RC_TARBALL_ARG
 S3_BUCKET=$S3_BUCKET_ARG
 
 set -e
@@ -16,17 +16,15 @@ prepare_directories () {
 
 # Download given RocketChat build
 build_rc () {
-    local fname
     local s3_path
-    fname="rocket.chat-$RC_VERSION.tgz"
-    s3_path="s3://$S3_BUCKET/$fname"
+    s3_path="s3://$S3_BUCKET/$RC_FILE"
     tmprcdir=$(mktemp -d)
     cd $tmprcdir
     echo "Downloading Rocket.Chat installation files.."
     $AWS s3 cp --quiet "$s3_path" .
     echo "Unpacking Rocket.Chat files..."
-    tar zxf "$fname"
-    rm -f "$fname"
+    tar zxf "$RC_FILE"
+    rm -f "$RC_FILE"
     echo "Installing modules..."
     npm install --quiet --production --prefix ./bundle/programs/server
     echo "Copying to the new location..."
