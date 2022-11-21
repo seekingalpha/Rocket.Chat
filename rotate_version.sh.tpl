@@ -1,10 +1,5 @@
 #!/bin/bash
-AWS="/usr/local/bin/aws"
-AWS_DEFAULT_REGION=$AWS_DEFAULT_REGION_ARG
-RC_ENV=$ENV_ARG
 RC_DIR=$RC_DIR_ARG
-RC_VERSION=$version
-S3_BUCKET=$S3_BUCKET_ARG
 
 set -e
 
