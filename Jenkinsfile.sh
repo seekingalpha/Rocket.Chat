@@ -17,9 +17,16 @@ export ENV_ARG=$environment
 export RC_DIR_ARG="/opt/rocket-chat"
 export S3_BUCKET_ARG="seekingalpha-rocketchat-builds"
 
-## Render Script Templates
 ## Note: $version is a Jenkins job parameter
-envsubst_varlist='$AWS_DEFAULT_REGION_ARG,$ENV_ARG,$RC_DIR_ARG,$S3_BUCKET_ARG,$version'
+if [[ "$version" == rocket.chat-*.tgz ]]
+then
+  RC_TARBALL_ARG="$version"
+else
+  RC_TARBALL_ARG="rocket.chat-$version.tgz"
+fi
+
+## Render Script Templates
+envsubst_varlist='$AWS_DEFAULT_REGION_ARG,$ENV_ARG,$RC_DIR_ARG,$S3_BUCKET_ARG,$RC_TARBALL_ARG'
 envsubst "$envsubst_varlist" < ./pre_install.sh.tpl  > ./pre_install.sh
 envsubst "$envsubst_varlist" < ./rotate_version.sh.tpl > ./rotate_version.sh
 
@@ -68,10 +75,9 @@ for host in $rc_instance_ips ; do
 done
 
 # Update current version marker to deployed in environment
-versionized_file="rocket.chat-$version.tgz"
 current_marker_file="rocket.chat-$environment.tgz"
 echo "Marking up the latest version for $environment..."
-aws s3 cp "s3://$S3_BUCKET_ARG/$versionized_file" "s3://$S3_BUCKET_ARG/$current_marker_file" --acl public-read
+aws s3 cp "s3://$S3_BUCKET_ARG/$RC_TARBALL_ARG" "s3://$S3_BUCKET_ARG/$current_marker_file" --acl public-read
 
 ## flush CDN after letting the last host a bit more time to truly come up
 echo "Flushing $environment CDN"
