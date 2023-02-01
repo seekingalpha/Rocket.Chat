@@ -163,6 +163,17 @@ export class DatabaseWatcher extends EventEmitter {
 		changeStream.on('change', (event) => {
 			this.emitDoc(event.ns.coll, convertChangeStreamPayload(event));
 		});
+		changeStream.on('close', () => {
+			console.log('[DatabaseWatcher] CHANGE STREAM CLOSED!');
+		});
+		changeStream.on('end', () => {
+			console.log('[DatabaseWatcher] CHANGE STREAM ENDED!');
+		});
+		changeStream.on('error', (err) => {
+			console.log('[DatabaseWatcher] CHANGE STREAM ERROR:', err);
+
+			throw err;
+		});
 	}
 
 	private emitDoc(collection: string, doc: RealTimeData<IRocketChatRecord> | void): void {
