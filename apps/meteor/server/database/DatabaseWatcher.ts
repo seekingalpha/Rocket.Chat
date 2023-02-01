@@ -166,8 +166,15 @@ export class DatabaseWatcher extends EventEmitter {
 			changeStream.on('change', (event) => {
 				this.emitDoc(event.ns.coll, convertChangeStreamPayload(event));
 			});
-
+			changeStream.on('close', () => {
+				this.logger.log('CHANGE STREAM CLOSED!');
+			});
+			changeStream.on('end', () => {
+				this.logger.log('CHANGE STREAM ENDED!');
+			});
 			changeStream.on('error', (err) => {
+				this.logger.error(err, 'CHANGE STREAM ERROR NOACH');
+
 				throw err;
 			});
 
