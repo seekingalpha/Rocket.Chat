@@ -198,7 +198,7 @@ jobs:
     strategy:
       matrix:
         node-version: ['14.19.3']
-        mongodb-version: ['4.2']
+        mongodb-version: ['5.0']
 
     steps:
       - name: Launch MongoDB
@@ -373,7 +373,7 @@ jobs:
     strategy:
       matrix:
         node-version: ['14.19.3']
-        mongodb-version-ee: ['4.2']
+        mongodb-version-ee: ['5.0']
 
     steps:
       - name: Launch MongoDB
