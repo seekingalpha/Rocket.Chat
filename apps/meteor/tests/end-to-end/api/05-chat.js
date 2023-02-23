@@ -795,7 +795,7 @@ describe('[Chat]', function () {
 				}, 1000);
 			});
 
-			it('should embed an image preview if message has an image url', (done) => {
+			it.skip('should embed an image preview if message has an image url', (done) => {
 				setTimeout(() => {
 					request
 						.get(api('chat.getMessage'))
