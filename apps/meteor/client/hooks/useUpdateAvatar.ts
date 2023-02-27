@@ -1,3 +1,4 @@
+// @ DISABLED FOR NOW ts-nocheck
 import type { AvatarObject, AvatarServiceObject, AvatarReset, AvatarUrlObj, IUser } from '@rocket.chat/core-typings';
 import { useToastMessageDispatch, useMethod, useTranslation } from '@rocket.chat/ui-contexts';
 import { useCallback } from 'react';
