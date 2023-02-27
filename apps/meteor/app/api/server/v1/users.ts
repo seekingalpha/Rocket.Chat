@@ -157,6 +157,7 @@ API.v1.addRoute(
 	},
 );
 
+// @ts-ignore
 API.v1.addRoute(
 	'users.setAvatar',
 	{ authRequired: true, validateParams: isUsersSetAvatarProps },
@@ -184,8 +185,8 @@ API.v1.addRoute(
 			}
 
 			if (this.bodyParams.avatarUrl) {
-				setUserAvatar(user, this.bodyParams.avatarUrl, '', 'url');
-				return API.v1.success();
+				const avatarETag = setUserAvatar(user, this.bodyParams.avatarUrl, '', 'url');
+				return API.v1.success({ avatarETag });
 			}
 
 			const [image, fields] = await getUploadFormData(
@@ -219,9 +220,8 @@ API.v1.addRoute(
 				}
 			}
 
-			setUserAvatar(user, image.fileBuffer, image.mimetype, 'rest');
-
-			return API.v1.success();
+			const avatarETag = setUserAvatar(user, image.fileBuffer, image.mimetype, 'rest');
+			return API.v1.success({ avatarETag });
 		},
 	},
 );

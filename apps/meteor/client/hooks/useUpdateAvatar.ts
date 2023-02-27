@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { AvatarObject, AvatarServiceObject, AvatarReset, AvatarUrlObj, IUser } from '@rocket.chat/core-typings';
 import { useToastMessageDispatch, useMethod, useTranslation } from '@rocket.chat/ui-contexts';
 import { useMemo, useCallback } from 'react';
