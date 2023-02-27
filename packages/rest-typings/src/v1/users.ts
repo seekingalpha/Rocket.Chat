@@ -152,7 +152,9 @@ export type UsersEndpoints = {
 	};
 
 	'/v1/users.setAvatar': {
-		POST: (params: UsersSetAvatar) => void;
+		POST: (params: UsersSetAvatar) => {
+			avatarETag?: string;
+		};
 	};
 
 	'/v1/users.resetAvatar': {
