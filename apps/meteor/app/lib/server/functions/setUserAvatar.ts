@@ -88,7 +88,7 @@ export async function setUserAvatar(
 	etag?: string,
 	updater?: Updater<IUser>,
 	session?: ClientSession,
-): Promise<void> {
+): Promise<string | void> {
 	if (service === 'initials') {
 		if (updater) {
 			updater.set('avatarOrigin', service);
@@ -213,4 +213,6 @@ export async function setUserAvatar(
 			});
 		}, session);
 	}
+
+	return avatarETag;
 }
