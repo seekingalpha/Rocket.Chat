@@ -80,7 +80,7 @@ export async function setUserAvatar(
 	contentType: string | undefined,
 	service?: 'initials' | 'url' | 'rest' | string,
 	etag?: string,
-): Promise<void> {
+): Promise<string | void> {
 	if (service === 'initials') {
 		await Users.setAvatarData(user._id, service, null);
 		return;
@@ -174,14 +174,18 @@ export async function setUserAvatar(
 	const result = await fileStore.insert(file, buffer);
 
 	const avatarETag = etag || result?.etag || '';
+	if (service) {
+		await Users.setAvatarData(user._id, service, avatarETag);
+	}
 
 	setTimeout(async () => {
 		if (service) {
-			await Users.setAvatarData(user._id, service, avatarETag);
 			void api.broadcast('user.avatarUpdate', {
 				username: user.username,
 				avatarETag,
 			});
 		}
 	}, 500);
+
+	return avatarETag;
 }
