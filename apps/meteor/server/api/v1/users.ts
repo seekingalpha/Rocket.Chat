@@ -336,8 +336,8 @@ API.v1
 			}
 
 			if (this.bodyParams.avatarUrl) {
-				await setUserAvatar(user, this.bodyParams.avatarUrl, '', 'url');
-				return API.v1.success();
+				const avatarETag = await setUserAvatar(user, this.bodyParams.avatarUrl, '', 'url');
+				return API.v1.success({ avatarETag });
 			}
 
 			const image = await getUploadFormData(
@@ -377,13 +377,13 @@ API.v1
 			// image field; setUserAvatar parses it and records the provider name as the avatar origin. A regular
 			// upload has no service and is stored from the binary buffer.
 			if (typeof fields.service === 'string' && fields.service.length > 0) {
-				await setUserAvatar(user, fileBuffer.toString('utf8'), mimetype, fields.service);
-				return API.v1.success();
+				const avatarETag = await setUserAvatar(user, fileBuffer.toString('utf8'), mimetype, fields.service);
+				return API.v1.success({ avatarETag });
 			}
 
-			await setUserAvatar(user, fileBuffer, mimetype, 'rest');
+			const avatarETag = await setUserAvatar(user, fileBuffer, mimetype, 'rest');
 
-			return API.v1.success();
+			return API.v1.success({ avatarETag });
 		},
 	)
 	.post(
