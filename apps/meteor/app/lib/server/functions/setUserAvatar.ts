@@ -84,7 +84,7 @@ export async function setUserAvatar(
 	service?: 'initials' | 'url' | 'rest' | string,
 	etag?: string,
 	updater?: Updater<IUser>,
-): Promise<void> {
+): Promise<string | void> {
 	if (service === 'initials') {
 		if (updater) {
 			updater.set('avatarOrigin', origin);
@@ -182,20 +182,23 @@ export async function setUserAvatar(
 	const result = await fileStore.insert(file, buffer);
 
 	const avatarETag = etag || result?.etag || '';
+	if (service) {
+		if (updater) {
+			updater.set('avatarOrigin', origin);
+			updater.set('avatarETag', avatarETag);
+		} else {
+			await Users.setAvatarData(user._id, service, avatarETag);
+		}
+	}
 
 	setTimeout(async () => {
 		if (service) {
-			if (updater) {
-				updater.set('avatarOrigin', origin);
-				updater.set('avatarETag', avatarETag);
-			} else {
-				await Users.setAvatarData(user._id, service, avatarETag);
-			}
-
 			void api.broadcast('user.avatarUpdate', {
 				username: user.username,
 				avatarETag,
 			});
 		}
 	}, 500);
+
+	return avatarETag;
 }
