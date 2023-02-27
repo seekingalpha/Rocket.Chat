@@ -28,7 +28,7 @@ export function setUserAvatar(
 	contentType: string,
 	service: 'initials' | 'url' | 'rest' | string,
 	etag?: string,
-): void {
+): string | void {
 	if (service === 'initials') {
 		Users.setAvatarData(user._id, service, null);
 		return;
@@ -109,12 +109,14 @@ export function setUserAvatar(
 	const result = fileStore.insertSync(file, buffer);
 
 	const avatarETag = etag || result?.etag || null;
+	Users.setAvatarData(user._id, service, avatarETag);
 
 	Meteor.setTimeout(function () {
-		Users.setAvatarData(user._id, service, avatarETag);
 		api.broadcast('user.avatarUpdate', {
 			username: user.username,
 			avatarETag,
 		});
 	}, 500);
+
+	return avatarETag;
 }
