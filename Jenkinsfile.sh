@@ -20,8 +20,7 @@ fi
 ## Strip off the trailing letter from the region: Use us-west-2, not us-west-2a
 export AWS_DEFAULT_REGION=$(ec2metadata --availability-zone | awk '{print substr($0,1,length($0)-1)}')
 
-## Variables ending in _ARG are for expansion in the .tpl template files.
-## They must be EXPORTED and EXPLICITLY LISTED in the `envsubst_varlist` below.
+## EXPORTED variables ending in _ARG are for expansion in the .tpl template files.
 export AWS_DEFAULT_REGION_ARG=$AWS_DEFAULT_REGION
 export ENV_ARG=$environment
 export RC_DIR_ARG="/opt/rocket-chat"
@@ -29,7 +28,7 @@ export S3_BUCKET_ARG="seekingalpha-rocketchat-builds"
 export RC_TARBALL_ARG=$rc_tarball
 
 ## Render Script Templates
-envsubst_varlist='$AWS_DEFAULT_REGION_ARG,$ENV_ARG,$RC_DIR_ARG,$S3_BUCKET_ARG,$RC_TARBALL_ARG'
+envsubst_varlist=$( ruby -e 'puts ENV.keys.select{ |name| name.end_with?("_ARG") }.map{ |name| "$#{name}" }.join(",")' )
 envsubst "$envsubst_varlist" < ./pre_install.sh.tpl  > ./pre_install.sh
 envsubst "$envsubst_varlist" < ./rotate_version.sh.tpl > ./rotate_version.sh
 
