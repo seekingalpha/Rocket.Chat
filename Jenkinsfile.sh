@@ -22,15 +22,15 @@ fi
 ## Strip off the trailing letter from the region: Use us-west-2, not us-west-2a
 export AWS_DEFAULT_REGION=$(ec2metadata --availability-zone | awk '{print substr($0,1,length($0)-1)}')
 
-## EXPORTED variables ending in _ARG are for expansion in the .tpl template files.
-export AWS_DEFAULT_REGION_ARG=$AWS_DEFAULT_REGION
-export ENV_ARG=$environment
-export RC_DIR_ARG=$rc_dir
-export S3_BUCKET_ARG=$s3_bucket
-export RC_TARBALL_ARG=$rc_tarball
+## EXPORTED variables ending in _ENVSUBST are for expansion in the .tpl template files.
+export AWS_DEFAULT_REGION_ENVSUBST=$AWS_DEFAULT_REGION
+export ENV_ENVSUBST=$environment
+export RC_DIR_ENVSUBST=$rc_dir
+export S3_BUCKET_ENVSUBST=$s3_bucket
+export RC_TARBALL_ENVSUBST=$rc_tarball
 
 ## Render Script Templates
-envsubst_varlist=$( ruby -e 'puts ENV.keys.select{ |name| name.end_with?("_ARG") }.map{ |name| "$#{name}" }.join(",")' )
+envsubst_varlist=$( ruby -e 'puts ENV.keys.select{ |name| name.end_with?("_ENVSUBST") }.map{ |name| "$#{name}" }.join(",")' )
 envsubst "$envsubst_varlist" < ./pre_install.sh.tpl  > ./pre_install.sh
 envsubst "$envsubst_varlist" < ./rotate_version.sh.tpl > ./rotate_version.sh
 
