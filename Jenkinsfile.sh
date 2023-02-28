@@ -8,22 +8,25 @@ esac
 
 asg_names="rocketchat rocketchat-upm"
 
+## Note: $version is a Jenkins job parameter.
+## We accept either the full tarball filename or just its version substring.
+if [[ "$version" == rocket.chat-*.tgz ]]
+then
+  rc_tarball="$version"
+else
+  rc_tarball="rocket.chat-$version.tgz"
+fi
+
 ## Strip off the trailing letter from the region: Use us-west-2, not us-west-2a
 export AWS_DEFAULT_REGION=$(ec2metadata --availability-zone | awk '{print substr($0,1,length($0)-1)}')
 
-## Exported variables ending in _ARG are for expansion in the .tpl template files.
+## Variables ending in _ARG are for expansion in the .tpl template files.
+## They must be EXPORTED and EXPLICITLY LISTED in the `envsubst_varlist` below.
 export AWS_DEFAULT_REGION_ARG=$AWS_DEFAULT_REGION
 export ENV_ARG=$environment
 export RC_DIR_ARG="/opt/rocket-chat"
 export S3_BUCKET_ARG="seekingalpha-rocketchat-builds"
-
-## Note: $version is a Jenkins job parameter
-if [[ "$version" == rocket.chat-*.tgz ]]
-then
-  RC_TARBALL_ARG="$version"
-else
-  RC_TARBALL_ARG="rocket.chat-$version.tgz"
-fi
+export RC_TARBALL_ARG=$rc_tarball
 
 ## Render Script Templates
 envsubst_varlist='$AWS_DEFAULT_REGION_ARG,$ENV_ARG,$RC_DIR_ARG,$S3_BUCKET_ARG,$RC_TARBALL_ARG'
@@ -77,7 +80,7 @@ done
 # Update current version marker to deployed in environment
 current_marker_file="rocket.chat-$environment.tgz"
 echo "Marking up the latest version for $environment..."
-aws s3 cp "s3://$S3_BUCKET_ARG/$RC_TARBALL_ARG" "s3://$S3_BUCKET_ARG/$current_marker_file" --acl public-read
+aws s3 cp "s3://$S3_BUCKET_ARG/$rc_tarball" "s3://$S3_BUCKET_ARG/$current_marker_file" --acl public-read
 
 ## flush CDN after letting the last host a bit more time to truly come up
 echo "Flushing $environment CDN"
