@@ -2,6 +2,7 @@ import { Meteor } from 'meteor/meteor';
 import { TAPi18n } from 'meteor/rocketchat:tap-i18n';
 import s from 'underscore.string';
 import { escapeHTML } from '@rocket.chat/string-helpers';
+import emojione from 'emojione';
 
 import * as Mailer from '../../../../mailer';
 import { settings } from '../../../../settings/server';
@@ -9,6 +10,7 @@ import { metrics } from '../../../../metrics';
 import { callbacks } from '../../../../../lib/callbacks';
 import { getURL } from '../../../../utils/server';
 import { roomCoordinator } from '../../../../../server/lib/rooms/roomCoordinator';
+import { filterMarkdown } from '../../../../markdown/lib/markdown';
 
 let advice = '';
 let goToMessage = '';
@@ -131,11 +133,14 @@ export function getEmailData({ message, receiver, sender, subscription, room, em
 		user: username,
 		room: roomCoordinator.getRoomName(room.t, room),
 	});
-	const content = getEmailContent({
+	let content = getEmailContent({
 		message,
 		user: receiver,
 		room,
 	});
+
+	content = emojione.shortnameToUnicode(content);
+	content = filterMarkdown(content);
 
 	const room_path = getButtonUrl(room, subscription, message);
 
