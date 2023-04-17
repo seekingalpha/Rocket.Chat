@@ -537,6 +537,7 @@ API.v1.addRoute(
 			const findResult = findPrivateGroupByIdOrName({
 				params: this.requestParams(),
 				userId: this.userId,
+				checkedArchived: false,
 			});
 
 			const user = this.getUserFromParams();
@@ -558,6 +559,7 @@ API.v1.addRoute(
 			const findResult = findPrivateGroupByIdOrName({
 				params: this.requestParams(),
 				userId: this.userId,
+				checkedArchived: false,
 			});
 
 			Meteor.runAsUser(this.userId, () => {
