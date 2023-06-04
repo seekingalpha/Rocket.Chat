@@ -289,12 +289,16 @@ Template.loginForm.onRendered(function () {
 	Session.set('loginDefaultState');
 	if (window.self === window.top) {
 		setTimeout(function () {
-			const regExp = /.*rc_token=(.*?;)/;
-			const match = regExp.exec(document.cookie);
-			if (match && match.length === 2) {
-				Meteor.loginWithToken(match[1].slice(0, -1));
+			const token = document.cookie
+				.split(';')
+				.map((kv_string) => kv_string.split('='))
+				.map((kv_pair) => kv_pair.map((untrimmed_key_or_value) => untrimmed_key_or_value.trim()))
+				.find((kv_pair) => kv_pair[0] === 'rc_token')
+				?.at(1);
+			if (token) {
+				Meteor.loginWithToken(token);
 			}
-		}, 500);
+		}, 100);
 	}
 
 	return Tracker.autorun(() => {
