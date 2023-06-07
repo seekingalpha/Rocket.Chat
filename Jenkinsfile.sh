@@ -86,6 +86,9 @@ aws s3 cp "s3://$s3_bucket/$rc_tarball" "s3://$s3_bucket/$current_marker_file" -
 ## flush CDN after letting the last host a bit more time to truly come up
 echo "Flushing $environment CDN"
 sleep 30
+unset AWS_SESSION_TOKEN
+unset AWS_ACCESS_KEY_ID
+unset AWS_SECRET_ACCESS_KEY
 FASTLY_SERVICE=$(aws ssm get-parameter --name /rocketchat/fastly_service_id --with-decryption --query Parameter.Value --output text)
 FASTLY_TOKEN=$(aws ssm get-parameter --name /rocketchat/fastly_api_key --with-decryption --query Parameter.Value --output text)
 curl -X POST -H "Fastly-Key: $FASTLY_TOKEN" "https://api.fastly.com/service/$FASTLY_SERVICE/purge/$environment"
