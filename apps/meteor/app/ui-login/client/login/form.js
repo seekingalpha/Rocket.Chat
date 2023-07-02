@@ -293,7 +293,7 @@ Template.loginForm.onRendered(function () {
 				.split(';')
 				.map((kv_string) => kv_string.split('='))
 				.map((kv_pair) => kv_pair.map((untrimmed_key_or_value) => untrimmed_key_or_value.trim()))
-				.find((kv_pair) => kv_pair[0] === 'rc_token')
+				.find((kv_pair) => kv_pair[0] === 'sapi_obtained_rc_auth_token')
 				?.at(1);
 			if (token) {
 				Meteor.loginWithToken(token);
