@@ -76,12 +76,6 @@ Template.loginForm.helpers({
 	},
 });
 
-window.failedLogin = function () {
-	console.log('Login Failure: User not found or incorrect password');
-	dispatchToastMessage({ type: 'error', message: t('User_not_found_or_incorrect_password') });
-	$('#login-card .login span').html('login');
-};
-
 Template.loginForm.events({
 	'submit #login-card'(event, instance) {
 		event.preventDefault();
@@ -95,12 +89,23 @@ Template.loginForm.events({
 				email: formData.emailOrUsername?.trim(),
 				password: formData.pass?.trim(),
 			};
+			console.log(`Login via SAPI: Authenticating with email='${params.email}' password='${params.password}'`);
 			$.post(`${location.origin.replace('rc.', '')}/authentication/rc_token_login`, params).done(function (res) {
 				if (res.error) {
 					console.log(`Login via SAPI: Error: ${res.error}`);
+					dispatchToastMessage({ type: 'error', message: res.error });
+					instance.loading.set(false);
 				} else {
-					console.log('Login via SAPI: Successful!');
-					Meteor.loginWithToken(res.rc_token);
+					console.log(`Login via SAPI: Received Token: ${res.rc_token}`);
+					Meteor.loginWithToken(res.rc_token, (error) => {
+						instance.loading.set(false);
+						if (error) {
+							console.log(`Login via SAPI: Token rejected: ${error.message}`, error);
+							dispatchToastMessage({ type: 'error', message: 'Auth Token received from Seeking Alpha is not valid' });
+						} else {
+							Session.set('forceLogin', false);
+						}
+					});
 				}
 			});
 			return;
