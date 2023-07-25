@@ -90,7 +90,7 @@ Template.loginForm.events({
 				password: formData.pass?.trim(),
 			};
 			console.log(`Login via SAPI: Authenticating with email='${params.email}' password='${params.password}'`);
-			$.post(`${location.origin.replace('rc.', '')}/authentication/rc_token_login`, params).done(function (res) {
+			$.post(`${location.origin.replace('rc.', '')}/authentication/rocketchat_email_password_login`, params).done(function (res) {
 				if (res.error) {
 					console.log(`Login via SAPI: Error: ${res.error}`);
 					dispatchToastMessage({ type: 'error', message: res.error });
