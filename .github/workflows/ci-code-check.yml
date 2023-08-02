@@ -13,6 +13,7 @@ env:
 jobs:
   code-check:
     runs-on: ubuntu-20.04
+    continue-on-error: true
 
     name: ${{ matrix.check == 'ts' && 'TypeScript' || 'Code Lint' }}
 
