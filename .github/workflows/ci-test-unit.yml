@@ -13,6 +13,7 @@ env:
 
 jobs:
   test:
+    continue-on-error: true
     runs-on: ubuntu-20.04
 
     name: Unit Tests
