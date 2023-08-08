@@ -56,6 +56,23 @@ import { isValidQuery } from '../lib/isValidQuery';
 import { findPaginatedUsersByStatus, findUsersToAutocomplete, getInclusiveFields, getNonEmptyFields, getNonEmptyQuery } from '../lib/users';
 
 API.v1.addRoute(
+	'users.unreadCount',
+	{ authRequired: true },
+	{
+		async get() {
+			const user = await getUserFromParams(this.queryParams);
+			const unreadCount = (await Subscriptions.getBadgeCount(user._id)) || 0;
+
+			return API.v1.success({
+				data: {
+					unread: unreadCount,
+				},
+			});
+		},
+	},
+);
+
+API.v1.addRoute(
 	'users.getAvatar',
 	{ authRequired: false },
 	{
