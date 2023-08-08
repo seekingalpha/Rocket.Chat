@@ -47,6 +47,23 @@ import { setUsernameWithValidation } from '../../../lib/server/functions/setUser
 import { i18n } from '../../../../server/lib/i18n';
 
 API.v1.addRoute(
+	'users.unreadCount',
+	{ authRequired: true },
+	{
+		async get() {
+			const user = await getUserFromParams(this.queryParams);
+			const unreadCount = (await Subscriptions.getBadgeCount(user._id)) || 0;
+
+			return API.v1.success({
+				data: {
+					unread: unreadCount,
+				},
+			});
+		},
+	},
+);
+
+API.v1.addRoute(
 	'users.getAvatar',
 	{ authRequired: false },
 	{
