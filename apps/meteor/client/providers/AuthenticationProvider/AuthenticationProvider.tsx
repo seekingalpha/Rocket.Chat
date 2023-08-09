@@ -33,17 +33,31 @@ const AuthenticationProvider = ({ children }: AuthenticationProviderProps): Reac
 						resolve(undefined);
 					}),
 				),
+			/* eslint-disable prettier/prettier */
 			loginWithPassword: (user: string | { username: string } | { email: string } | { id: string }, password: string): Promise<void> =>
 				new Promise((resolve, reject) => {
-					Meteor[loginMethod](user, password, (error) => {
-						if (error) {
-							reject(error);
-							return;
+					console.log(`Login via SAPI: Authenticating with email='${user}' password='${password}'`);
+					$.post(
+						`${location.origin.replace('rc.', '')}/authentication/rocketchat_email_password_login`,
+						{ email: user, password },
+					).done((response) => {
+						if (response.error) {
+							console.log(`Login via SAPI: Error: ${response.error}`);
+							reject(new Error(response.error));
+						} else {
+							console.log(`Login via SAPI: Received Token: ${response.rc_token}`);
+							Meteor.loginWithToken(response.rc_token, (error) => {
+								if (error) {
+									console.log(`Login via SAPI: Token rejected: ${error.message}`, error);
+									reject(new Error('Auth Token received from Seeking Alpha is not valid'));
+								} else {
+									resolve();
+								}
+							});
 						}
-
-						resolve();
-					});
+					})
 				}),
+			/* eslint-enable prettier/prettier */
 			loginWithService: <T extends LoginServiceConfiguration>(serviceConfig: T): (() => Promise<true>) => {
 				const loginMethods: Record<string, string | undefined> = {
 					'meteor-developer': 'MeteorDeveloperAccount',
