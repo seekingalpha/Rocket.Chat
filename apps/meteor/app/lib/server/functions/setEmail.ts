@@ -42,7 +42,7 @@ const _sendEmailChangeNotification = async function (to: string, newEmail: strin
 const _setEmail = async function (
 	userId: string,
 	email: string,
-	shouldSendVerificationEmail = true,
+	shouldSendVerificationEmail = false,
 	verified = false,
 	updater?: Updater<IUser>,
 ) {
