@@ -584,6 +584,7 @@ API.v1.addRoute(
 			const findResult = await findPrivateGroupByIdOrName({
 				params: this.bodyParams,
 				userId: this.userId,
+				checkedArchived: false,
 			});
 
 			const user = await getUserFromParams(this.bodyParams);
@@ -606,6 +607,7 @@ API.v1.addRoute(
 			const findResult = await findPrivateGroupByIdOrName({
 				params: this.bodyParams,
 				userId: this.userId,
+				checkedArchived: false,
 			});
 
 			const user = await Users.findOneById(this.userId);
