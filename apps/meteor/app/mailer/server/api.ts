@@ -153,7 +153,7 @@ export const sendNoWrap = async ({
 	subject: string;
 	html?: string;
 	text?: string;
-	headers?: string;
+	headers?: { [key: string]: unknown }; // or would Map<string, any> be better?  or { [ k: string ]: string }
 }) => {
 	if (!checkAddressFormat(to)) {
 		throw new Meteor.Error('invalid email');
@@ -171,6 +171,15 @@ export const sendNoWrap = async ({
 	if (value) {
 		void notifyOnSettingChanged(value);
 	}
+
+	// == Email Delay ==
+	// Seeking Alpha’s LogStasher setup measures the queue wait-time
+	// between us sending email and our mail provider actually delivering it.
+	// This is reported in Kibana’s `email-*` index, in the `delay` field (measured in seconds).
+	// The calculation is based on a custom email header `X-SA-send-ts` (time_t).
+	// headers = Object(headers);
+	headers = headers || {};
+	headers['X-SA-send-ts'] = Math.round(new Date().getTime() / 1000);
 
 	const email = { to, from, replyTo, subject, html, text, headers };
 
@@ -195,7 +204,7 @@ export const send = async ({
 	subject: string;
 	html?: string;
 	text?: string;
-	headers?: string;
+	headers?: { [key: string]: unknown };
 	data?: { [key: string]: unknown };
 }): Promise<void> =>
 	sendNoWrap({
