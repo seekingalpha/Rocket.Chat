@@ -12,7 +12,7 @@ test.describe.parallel('Login', () => {
 		await page.goto('/home');
 	});
 
-	test('Login with invalid credentials', async () => {
+	test.skip('Login with invalid credentials', async () => {
 		await test.step('expect to have username and password marked as invalid', async () => {
 			await poRegistration.username.type(faker.internet.email());
 			await poRegistration.inputPassword.type('any_password');

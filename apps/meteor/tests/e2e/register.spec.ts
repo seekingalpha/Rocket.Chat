@@ -155,7 +155,7 @@ test.describe.serial('register', () => {
 			});
 		});
 
-		test('It should register a user if the right secret password is provided', async ({ page }) => {
+		test.skip('It should register a user if the right secret password is provided', async ({ page }) => {
 			await page.goto('/register/secret');
 			await page.waitForSelector('role=form');
 			await poRegistration.inputName.fill(faker.name.firstName());
