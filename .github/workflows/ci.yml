@@ -312,7 +312,7 @@ jobs:
   deploy:
     name: 🚀 Copy to S3  # The actual deployment to our servers is done via Jenkins
     runs-on: ubuntu-20.04
-    needs: [build, release-versions]
+    needs: [tests-done, release-versions]
 
     steps:
       - uses: actions/checkout@v3
