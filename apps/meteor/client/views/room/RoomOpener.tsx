@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next';
 
 import { getErrorMessage } from '../../lib/errorHandling';
 import { NotAuthorizedError } from '../../lib/errors/NotAuthorizedError';
+import { OldUrlRoomError } from '../../lib/errors/OldUrlRoomError';
 import { RoomNotFoundError } from '../../lib/errors/RoomNotFoundError';
 import RoomSkeleton from './RoomSkeleton';
 import { useOpenRoom } from './hooks/useOpenRoom';
@@ -32,6 +33,10 @@ const RoomOpener = ({ type, reference }: RoomOpenerProps): ReactElement => {
 			{isSuccess && <RoomProvider rid={data.rid}>{<Room />}</RoomProvider>}
 			{isError &&
 				(() => {
+					if (error instanceof OldUrlRoomError) {
+						return <RoomSkeleton />;
+					}
+
 					if (error instanceof RoomNotFoundError) {
 						return <RoomNotFound />;
 					}
