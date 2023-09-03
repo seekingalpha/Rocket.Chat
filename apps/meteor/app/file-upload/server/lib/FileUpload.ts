@@ -562,7 +562,24 @@ export const FileUpload = {
 	) {
 		res.setHeader('Content-Disposition', `${forceDownload ? 'attachment' : 'inline'}; filename="${encodeURI(fileName)}"`);
 
-		request.get(fileUrl, (fileRes) => fileRes.pipe(res));
+		request.get(fileUrl, (fileRes) => {
+			if (fileRes.statusCode !== 200) {
+				res.setHeader('x-rc-debug-status', fileRes.statusCode);
+				res.setHeader('x-rc-debug-url', fileUrl);
+				res.setHeader('content-length', 0);
+				res.writeHead(500);
+			}
+
+			if (fileRes.headers['content-type']) {
+				res.setHeader('content-type', fileRes.headers['content-type']);
+			}
+
+			if (fileRes.headers['content-length']) {
+				res.setHeader('content-length', fileRes.headers['content-length']);
+			}
+
+			fileRes.pipe(res);
+		});
 	},
 
 	generateJWTToFileUrls({ rid, userId, fileId }: { rid: string; userId: string; fileId: string }) {
