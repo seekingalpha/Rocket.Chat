@@ -6736,7 +6736,7 @@
   "registration.component.form.divider": "or",
   "registration.component.form.email": "Email",
   "registration.component.form.emailAlreadyInUse": "Email already in use",
-  "registration.component.form.emailOrUsername": "Email or username",
+  "registration.component.form.emailOrUsername": "Email address",
   "registration.component.form.emailPlaceholder": "example@example.com",
   "registration.component.form.invalidConfirmPass": "The password confirmation does not match password",
   "registration.component.form.invalidEmail": "The email entered is invalid",
