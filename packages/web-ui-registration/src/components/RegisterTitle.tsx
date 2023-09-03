@@ -8,7 +8,7 @@ export const RegisterTitle = (): ReactElement | null => {
 		return null;
 	}
 
-	return (
+	return(
 		<>
 			Seeking Alpha
 			<br />
