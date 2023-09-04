@@ -14,7 +14,14 @@ const get: FileUploadClass['get'] = async function (this: FileUploadClass, file,
 	const forceDownload = typeof query.download !== 'undefined';
 
 	const fileUrl = await this.store.getRedirectURL(file, forceDownload);
-	if (!fileUrl || !file.store) {
+	if (!fileUrl || !file.store || fileUrl === 'https://s3.us-west-2.amazonaws.com/') {
+		// If the credentials fail, getRedirectURL can return the string above,
+		// which just 307s (incidentally to https://aws.amazon.com/s3/).
+		// Proxying that 307 (in proxyFile(), below) just sends an empty body and closes the connection,
+		// causing us to falsey return an empty file.
+		// HACK: just fail 500 and hopefully it will succeed the next time around.
+		res.setHeader('x-rc-debug-s3url', fileUrl || '');
+		res.writeHead(500);
 		res.end();
 		return;
 	}
