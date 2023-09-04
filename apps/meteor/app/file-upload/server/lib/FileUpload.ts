@@ -563,11 +563,17 @@ export const FileUpload = {
 		res.setHeader('Content-Disposition', `${forceDownload ? 'attachment' : 'inline'}; filename="${encodeURI(fileName)}"`);
 
 		request.get(fileUrl, (fileRes) => {
+			res.setHeader('x-rc-debug-url', fileUrl);
+			res.setHeader('x-rc-debug-status', fileRes.statusCode);
+			for (const [header, value] of Object.entries(fileRes.headers)) {
+				res.setHeader(`x-rc-debug-s3-header-${header}`, value);
+			}
+
 			if (fileRes.statusCode !== 200) {
-				res.setHeader('x-rc-debug-url', fileUrl);
-				res.setHeader('x-rc-debug-status', fileRes.statusCode);
-				res.setHeader('x-rc-debug-content-type', fileRes.headers['content-type'] || "");
-				res.setHeader('x-rc-debug-content-length', fileRes.headers['content-length'] || "");
+				// res.setHeader('x-rc-debug-url', fileUrl);
+				// res.setHeader('x-rc-debug-status', fileRes.statusCode);
+				// res.setHeader('x-rc-debug-content-type', fileRes.headers['content-type'] || "");
+				// res.setHeader('x-rc-debug-content-length', fileRes.headers['content-length'] || "");
 				res.setHeader('content-length', 0);
 				res.writeHead(500);
 				res.end();
