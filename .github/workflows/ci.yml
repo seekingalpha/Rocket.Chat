@@ -115,40 +115,9 @@ jobs:
       #     docker rmi $(docker image ls -aq)
       #     df -h
 
-      - name: Cache meteor local
-        uses: actions/cache@v3
-        with:
-          path: ./apps/meteor/.meteor/local
-          key: meteor-local-cache-${{ runner.OS }}-${{ hashFiles('apps/meteor/.meteor/versions') }}
-          restore-keys: |
-            meteor-local-cache-${{ runner.os }}-
-
-      - name: Cache meteor
-        uses: actions/cache@v3
-        with:
-          path: ~/.meteor
-          key: meteor-cache-${{ runner.OS }}-${{ hashFiles('apps/meteor/.meteor/release') }}
-          restore-keys: |
-            meteor-cache-${{ runner.os }}-
-
       - name: Install Meteor
         run: |
-          # Restore bin from cache
-          set +e
-          METEOR_SYMLINK_TARGET=$(readlink ~/.meteor/meteor)
-          METEOR_TOOL_DIRECTORY=$(dirname "$METEOR_SYMLINK_TARGET")
-          set -e
-          LAUNCHER=$HOME/.meteor/$METEOR_TOOL_DIRECTORY/scripts/admin/launch-meteor
-          if [ -e $LAUNCHER ]
-          then
-            echo "Cached Meteor bin found, restoring it"
-            sudo cp "$LAUNCHER" "/usr/local/bin/meteor"
-          else
-            echo "No cached Meteor bin found."
-          fi
-
-          # only install meteor if bin isn't found
-          command -v meteor >/dev/null 2>&1 || curl https://install.meteor.com | sed s/--progress-bar/-sL/g | /bin/sh
+          curl 'https://install.meteor.com/?release=2.11.0' | sed s/--progress-bar/-sL/g | /bin/sh
 
       - name: Versions
         run: |
