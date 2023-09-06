@@ -142,11 +142,6 @@ jobs:
       - name: Translation check
         run: yarn turbo run translation-check
 
-      - name: Reset Meteor
-        if: true  # To be safe, let's _always_ reset this and regenerate
-        working-directory: ./apps/meteor
-        run: meteor reset
-
       - name: Build Rocket.Chat From Pull Request
         if: startsWith(github.ref, 'refs/pull/') == true
         env:
