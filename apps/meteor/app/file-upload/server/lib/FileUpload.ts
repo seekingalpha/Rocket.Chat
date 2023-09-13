@@ -564,7 +564,7 @@ export const FileUpload = {
 
 		request.get(fileUrl, (fileRes) => {
 			if (fileRes.statusCode !== 200) {
-				res.setHeader('x-rc-proxyfile-status', fileRes.statusCode);
+				res.setHeader('x-rc-proxyfile-status', String(fileRes.statusCode));
 				res.setHeader('content-length', 0);
 				res.writeHead(500);
 				res.end();
@@ -572,7 +572,7 @@ export const FileUpload = {
 			}
 
 			['content-length', 'content-type'].forEach((header) => {
-				fileRes.headers[header] && res.setHeader(header, fileRes.headers[header]);
+				fileRes.headers[header] && res.setHeader(header, String(fileRes.headers[header]));
 			});
 
 			fileRes.pipe(res);
