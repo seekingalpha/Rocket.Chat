@@ -240,15 +240,7 @@ export class Presence extends ServiceClass implements IPresence {
 	}
 
 	private async validateAvailability(): Promise<void> {
-		if (this.hasLicense) {
-			return;
-		}
-
-		if (this.getTotalConnections() > MAX_CONNECTIONS) {
-			this.broadcastEnabled = false;
-
-			await Settings.updateValueById('Presence_broadcast_disabled', true);
-		}
+		return;
 	}
 
 	private getTotalConnections(): number {
