@@ -25,6 +25,9 @@ WebApp.rawConnectHandlers.use(function (_req: http.IncomingMessage, res: http.Se
 	// XSS Protection for old browsers (IE)
 	res.setHeader('X-XSS-Protection', '1');
 
+	// X-Content-Type-Options header to prevent MIME Sniffing
+	res.setHeader('X-Content-Type-Options', 'nosniff');
+
 	if (settings.get('Iframe_Restrict_Access')) {
 		res.setHeader('X-Frame-Options', settings.get<string>('Iframe_X_Frame_Options'));
 	}
