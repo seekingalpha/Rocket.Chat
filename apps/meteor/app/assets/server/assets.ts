@@ -376,7 +376,7 @@ Meteor.startup(() => {
 const { calculateClientHash } = WebAppHashing;
 
 WebAppHashing.calculateClientHash = function (manifest, includeFilter, runtimeConfigOverride): string {
-	for (const key of Object.keys(assets)) {
+	for (const key of Object.keys(assets).sort()) {
 		const value = getAssetByKey(key);
 		if (!value.cache && !value.defaultUrl) {
 			continue;
