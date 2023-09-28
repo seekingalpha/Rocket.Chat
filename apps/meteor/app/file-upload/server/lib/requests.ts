@@ -2,8 +2,21 @@ import { WebApp } from 'meteor/webapp';
 import { Uploads } from '@rocket.chat/models';
 
 import { FileUpload } from './FileUpload';
+import { Logger } from '../../../../server/lib/logger/Logger';
 
 WebApp.connectHandlers.use(FileUpload.getPath(), async function (req, res, next) {
+	const log = new Logger('FileUpload').logger.child({
+		url: req.url,
+		userAgent: req.headers['user-agent'],
+		userId: req.headers['x-user-id'],
+		host: req.headers.host,
+		referer: req.headers.referer,
+	});
+
+	log.http({
+		stage: 'start',
+	});
+
 	const match = /^\/([^\/]+)\/(.*)/.exec(req.url || '');
 
 	if (match?.[1]) {
