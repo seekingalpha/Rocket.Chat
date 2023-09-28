@@ -11,6 +11,7 @@ WebApp.connectHandlers.use(FileUpload.getPath(), async function (req, res, next)
 		userId: req.headers['x-user-id'],
 		host: req.headers.host,
 		referer: req.headers.referer,
+		headers: req.headers,
 	});
 
 	log.http({
