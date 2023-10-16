@@ -71,12 +71,14 @@ parallel-ssh \
   --hosts <(echo "$rc_instance_ips") \
   --send-input < ./pre_install.sh
 
-## One by one rotate the running code via ssh
-for host in $rc_instance_ips ; do
-  echo "-----------------------------"
-  echo "Applying new version to $host"
-  ssh -t -l deploy $host < ./rotate_version.sh
-done
+
+## Activate new version
+echo "Activating new version on all RC nodes:"
+parallel-ssh \
+  --inline --timeout 300 --user deploy \
+  --hosts <(echo "$rc_instance_ips") \
+  --send-input < ./rotate_version.sh
+
 
 # Update current version marker to deployed in environment
 current_marker_file="rocket.chat-$environment.tgz"
