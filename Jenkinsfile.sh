@@ -19,6 +19,11 @@ else
   rc_tarball="rocket.chat-$version.tgz"
 fi
 
+function hr() {
+  echo "==========================================================================="
+}
+
+
 ## Strip off the trailing letter from the region: Use us-west-2, not us-west-2a
 export AWS_DEFAULT_REGION=$(ec2metadata --availability-zone | awk '{print substr($0,1,length($0)-1)}')
 
@@ -65,27 +70,31 @@ rc_instance_ips=$(
   done
 )
 
-## Parallel build via pssh
+
+## Install RC tarball (and its dependencies) onto all RC nodes
+hr
+echo "Installing new build onto all RC nodes:"
 parallel-ssh \
   --inline --timeout 300 --user deploy \
   --hosts <(echo "$rc_instance_ips") \
   --send-input < ./pre_install.sh
-
+hr
 
 ## Activate new version
-echo "Activating new version on all RC nodes:"
+echo "Activating new build on all RC nodes:"
 parallel-ssh \
   --inline --timeout 300 --user deploy \
   --hosts <(echo "$rc_instance_ips") \
   --send-input < ./rotate_version.sh
+hr
 
-
-# Update current version marker to deployed in environment
+## Update the version marker file
+echo "Mark which RC build is now active..."
 current_marker_file="rocket.chat-$environment.tgz"
-echo "Marking up the latest version for $environment..."
 aws s3 cp "s3://$s3_bucket/$rc_tarball" "s3://$s3_bucket/$current_marker_file" --acl public-read
+hr
 
-## flush CDN after letting the last host a bit more time to truly come up
+## Flush CDN
 echo "Flushing $environment CDN"
 sleep 30
 unset AWS_SESSION_TOKEN
