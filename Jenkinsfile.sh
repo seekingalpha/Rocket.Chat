@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -o errexit
+
 case $JOB_BASE_NAME in
   *staging*)    environment=staging ;;
   *production*) environment=production ;;
