@@ -26,7 +26,11 @@ build_rc () {
     tar zxf "$RC_FILE"
     rm -f "$RC_FILE"
     echo "Installing modules..."
-    npm install --quiet --production --prefix ./bundle/programs/server
+    # loglevels (high to low): error, warn, notice, http, timing, info, verbose, silly
+    #   default = notice
+    #   To disable logging, set loglevel to `silent`
+    #   However, even with `silent` the "package_name@version install_folder" lines are still shown
+    npm_config_loglevel=warn npm install --production --prefix ./bundle/programs/server
     echo "Copying to the new location..."
     sudo mv ./bundle $RC_DIR-new/
     rm -rf $tmprcdir
