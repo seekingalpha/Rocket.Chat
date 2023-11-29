@@ -7,7 +7,7 @@ on:
     branches: '**'
   push:
     branches:
-      - develop
+      - '**'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
@@ -81,6 +81,7 @@ jobs:
           echo "gh-docker-tag=${DOCKER_TAG}" >> $GITHUB_OUTPUT
 
   notify-draft-services:
+    if: false
     name: 🚀 Notify external services - draft
     runs-on: ubuntu-20.04
     needs: [release-versions]
@@ -122,7 +123,7 @@ jobs:
 
   packages-build:
     name: 📦 Build Packages
-    needs: [release-versions, notify-draft-services]
+    needs: [release-versions]
     runs-on: ubuntu-20.04
     steps:
       - name: Github Info
@@ -183,12 +184,12 @@ jobs:
       - uses: ./.github/actions/meteor-build
         with:
           node-version: ${{ needs.release-versions.outputs.node-version }}
-          coverage: true
+          coverage: false
 
   build-prod:
+    if: false
     name: 📦 Meteor Build - official
     needs: [tests-done, release-versions, packages-build]
-    if: (github.event_name == 'release' || github.ref == 'refs/heads/develop')
     runs-on: ubuntu-20.04
 
     steps:
@@ -210,6 +211,7 @@ jobs:
           coverage: false
 
   build-gh-docker-coverage:
+    if: false
     name: 🚢 Build Docker Images for Testing
     needs: [build, release-versions]
     runs-on: ubuntu-20.04
@@ -239,6 +241,7 @@ jobs:
           platform: ${{ matrix.platform }}
 
   build-gh-docker:
+    if: false
     name: 🚢 Build Docker Images for Production
     needs: [build-prod, release-versions]
     runs-on: ubuntu-20.04
@@ -293,6 +296,7 @@ jobs:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
   test-api:
+    if: false
     name: 🔨 Test API (CE)
     needs: [checks, build-gh-docker-coverage, release-versions]
 
@@ -312,6 +316,7 @@ jobs:
       CR_PAT: ${{ secrets.CR_PAT }}
 
   test-ui:
+    if: false
     name: 🔨 Test UI (CE)
     needs: [checks, build-gh-docker-coverage, release-versions]
 
@@ -338,6 +343,7 @@ jobs:
       REPORTER_ROCKETCHAT_URL: ${{ secrets.REPORTER_ROCKETCHAT_URL }}
 
   test-api-ee:
+    if: false
     name: 🔨 Test API (EE)
     needs: [checks, build-gh-docker-coverage, release-versions]
 
@@ -360,6 +366,7 @@ jobs:
       CR_PAT: ${{ secrets.CR_PAT }}
 
   test-ui-ee:
+    if: false
     name: 🔨 Test UI (EE)
     needs: [checks, build-gh-docker-coverage, release-versions]
 
@@ -398,10 +405,9 @@ jobs:
           echo finished
 
   deploy:
-    name: 🚀 Publish build assets
+    name: 🚀 Copy to S3  # The actual deployment to our servers is done via Jenkins
     runs-on: ubuntu-20.04
-    if: github.event_name == 'release' || github.ref == 'refs/heads/develop'
-    needs: [build-gh-docker, release-versions]
+    needs: [build, release-versions]
 
     steps:
       - uses: Bhacaz/checkout-files@v2
@@ -417,10 +423,9 @@ jobs:
 
       - name: Publish assets
         env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_DEFAULT_REGION: 'us-east-1'
-          GPG_PASSWORD: ${{ secrets.GPG_PASSWORD }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_USER_GITHUB_ROCKETCHAT_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_USER_GITHUB_ROCKETCHAT_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: us-west-2
         run: |
           REPO_VERSION=$(node -p "require('./package.json').version")
 
@@ -434,26 +439,22 @@ jobs:
 
           ROCKET_DEPLOY_DIR="/tmp/deploy"
           FILENAME="$ROCKET_DEPLOY_DIR/rocket.chat-$ARTIFACT_NAME.tgz";
+          FILENAME_LATEST="$ROCKET_DEPLOY_DIR/rocket.chat-latest.tgz";
 
-          aws s3 cp s3://rocketchat/sign.key.gpg .github/sign.key.gpg
 
           mkdir -p $ROCKET_DEPLOY_DIR
 
-          cp .github/sign.key.gpg /tmp
-          gpg --yes --batch --passphrase=$GPG_PASSWORD /tmp/sign.key.gpg
-          gpg --allow-secret-key-import --import /tmp/sign.key
-          rm /tmp/sign.key
 
           ln -s /tmp/build/Rocket.Chat.tar.gz "$FILENAME"
-          gpg --armor --detach-sign "$FILENAME"
+          ln -s /tmp/build/Rocket.Chat.tar.gz "$FILENAME_LATEST"
 
-          aws s3 cp $ROCKET_DEPLOY_DIR/ s3://download.rocket.chat/build/ --recursive
+          aws s3 cp $ROCKET_DEPLOY_DIR/ s3://seekingalpha-rocketchat-builds/ --recursive
 
   build-docker-preview:
+    if: false
     name: 🚢 Build Docker Image (preview)
     runs-on: ubuntu-20.04
     needs: [build, checks, release-versions]
-    if: github.event_name == 'release' || github.ref == 'refs/heads/develop'
     steps:
       - uses: actions/checkout@v4
 
@@ -480,6 +481,7 @@ jobs:
           password: ${{ secrets.CR_PAT }}
 
   docker-image-publish:
+    if: false
     name: 🚀 Publish Docker Image (main)
     runs-on: ubuntu-20.04
     needs: [deploy, build-docker-preview, release-versions]
@@ -591,6 +593,7 @@ jobs:
           echo "::endgroup::"
 
   services-docker-image-publish:
+    if: false
     name: 🚀 Publish Docker Image (services)
     runs-on: ubuntu-20.04
     needs: [deploy, release-versions]
@@ -680,6 +683,7 @@ jobs:
           echo "::endgroup::"
 
   notify-services:
+    if: false
     name: 🚀 Notify external services
     runs-on: ubuntu-20.04
     needs:
@@ -740,8 +744,8 @@ jobs:
             -d '{"tag":"'$GIT_TAG'"}'
 
   trigger-dependent-workflows:
+    if: false
     runs-on: ubuntu-latest
-    if: github.event_name == 'release'
     needs:
       - services-docker-image-publish
       - docker-image-publish
