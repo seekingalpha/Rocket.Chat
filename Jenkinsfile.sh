@@ -77,7 +77,7 @@ rc_instance_ips=$(
 hr
 echo "Installing new build onto all RC nodes:"
 parallel-ssh \
-  --inline --timeout 300 --user deploy \
+  --inline --timeout 600 --user deploy \
   --hosts <(echo "$rc_instance_ips") \
   --send-input < ./pre_install.sh
 hr
@@ -85,7 +85,7 @@ hr
 ## Activate new version
 echo "Activating new build on all RC nodes:"
 parallel-ssh \
-  --inline --timeout 300 --user deploy \
+  --inline --timeout 600 --user deploy \
   --hosts <(echo "$rc_instance_ips") \
   --send-input < ./rotate_version.sh
 hr
