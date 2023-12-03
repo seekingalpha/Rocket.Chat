@@ -8,7 +8,6 @@ case $JOB_BASE_NAME in
   *)            echo "ERROR: Can’t infer environment from job name!"; exit 99 ;;
 esac
 
-asg_names="rocketchat rocketchat-upm"
 rc_dir="/opt/rocket-chat"
 s3_bucket="seekingalpha-rocketchat-builds"
 
@@ -63,13 +62,11 @@ fi
 
 ## Get instance IPs one per line (multiline string)
 rc_instance_ips=$(
-  for asg in $asg_names ; do
-      aws ec2 describe-instances \
-          --filters Name=instance-state-name,Values=running \
-                    Name=tag:aws:autoscaling:groupName,Values=$asg \
-          --query "Reservations[*].Instances[*].NetworkInterfaces[0].PrivateIpAddress" \
-          --output text
-  done
+  aws ec2 describe-instances \
+      --filters Name=instance-state-name,Values=running \
+                Name=tag:aws:autoscaling:groupName,Values=rocketchat \
+      --query "Reservations[*].Instances[*].NetworkInterfaces[0].PrivateIpAddress" \
+      --output text
 )
 
 
