@@ -46,10 +46,8 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: test
-        run: |
-          echo "test"
-
-      - name: Run instance refresh rolling update script
+      - name: Run deployment
         run: "$GITHUB_WORKSPACE/github.sh"
         shell: bash
+        env:
+          ENVIRONMENT_NAME: ${{ inputs.environment }}

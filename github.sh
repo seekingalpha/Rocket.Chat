@@ -2,9 +2,9 @@
 
 set -o errexit
 
-echo $GITHUB_ENV
+echo $ENVIRONMENT_NAME
 
-case $GITHUB_ENV in
+case $ENVIRONMENT_NAME in
   *staging*)    environment=staging ;;
   *production*) environment=production ;;
   *)            echo "ERROR: Can’t infer environment from job name!"; exit 99 ;;
