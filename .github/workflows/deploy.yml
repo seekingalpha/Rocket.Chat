@@ -4,6 +4,8 @@ on:
       version:
         type: string
         description: |
+          version:\n
+          
           RC version + git commit number.
 
           For a list of available versions, look in
