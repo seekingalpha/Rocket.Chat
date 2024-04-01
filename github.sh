@@ -11,7 +11,7 @@ case $GITHUB_ENV in
 esac
 
 echo $environment
-
+#
 #rc_dir="/opt/rocket-chat"
 #s3_bucket="seekingalpha-rocketchat-builds"
 #
