@@ -4,23 +4,23 @@ on:
       version:
         type: string
         description: |
-          version:[^1]
+          version:
           
-          RC version + git commit number.
+            RC version + git commit number.
 
-          For a list of available versions, look in
+            For a list of available versions, look in
 
-          s3://seekingalpha-rocketchat-builds/
+            s3://seekingalpha-rocketchat-builds/
 
-          for rocket.chat-VERSION.tgz
+            for rocket.chat-VERSION.tgz
 
-          Special versions:
+            Special versions:
 
-          latest  = version last built
+            latest  = version last built
 
-          staging = version last deployed to staging
+            staging = version last deployed to staging
 
-          production = version last deployed to production
+            production = version last deployed to production
         required: true
 
       environment:
