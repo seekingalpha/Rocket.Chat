@@ -1,0 +1,73 @@
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        type: string
+        description: |
+          version:
+          
+            RC version + git commit number.
+
+            For a list of available versions, look in
+
+            s3://seekingalpha-rocketchat-builds/
+
+            for rocket.chat-VERSION.tgz
+
+            Special versions:
+
+            latest  = version last built
+
+            staging = version last deployed to staging
+
+            production = version last deployed to production
+        required: true
+
+      environment:
+        type: choice
+        description: chose the AWS environment
+        options:
+          - staging
+          - production
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ inputs.environment }}
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  deploy:
+    name: deploy
+    environment: ${{ inputs.environment }}
+    runs-on: [rocketchat]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: install dependencies.
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y cloud-utils
+          sudo apt-get install -y pssh
+          sudo apt-get install -y gettext
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_TO_ASSUME }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      #this is the private key for ci user, used by jenkins slave, can be found in ssm parameter staging jenkins slave. that allows ssh to airflow.
+      - name: install the ci private key
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: '${{ secrets.CI_SSH_PRIVATE_KEY }}'
+
+      - name: Run deployment
+        run: "$GITHUB_WORKSPACE/github.sh"
+        shell: bash
+        env:
+          ENVIRONMENT_NAME: ${{ inputs.environment }}
+          version: ${{ inputs.version }}
