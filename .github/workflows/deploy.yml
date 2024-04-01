@@ -1,0 +1,49 @@
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        type: string
+        description: |
+          RC version + git commit number.
+
+          For a list of available versions, look in
+
+          s3://seekingalpha-rocketchat-builds/
+
+          for rocket.chat-VERSION.tgz
+
+          Special versions:
+
+          latest  = version last built
+
+          staging = version last deployed to staging
+
+          production = version last deployed to production
+        required: true
+
+      environment:
+        type: choice
+        description: chose the AWS environment
+        options:
+          - staging
+          - production
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  deploy:
+    name: deploy
+    environment: ${{ inputs.environment }}
+    runs-on: [rocketchat]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: test
+        run: |
+          echo "test"
