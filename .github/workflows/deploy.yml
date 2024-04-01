@@ -49,3 +49,7 @@ jobs:
       - name: test
         run: |
           echo "test"
+
+      - name: Run instance refresh rolling update script
+        run: "$GITHUB_WORKSPACE/github.sh
+        shell: bash
