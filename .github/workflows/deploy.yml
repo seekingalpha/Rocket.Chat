@@ -50,6 +50,9 @@ jobs:
         run: |
           sudo apt-get update -y
           sudo apt-get install -y cloud-utils
+          whoami
+          ls -ltrh /opt
+          ls -ltrh /opt/hostedtoolcache
 
       - uses: ruby/setup-ruby@v1
         with:
