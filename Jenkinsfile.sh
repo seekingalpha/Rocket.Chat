@@ -37,7 +37,7 @@ export RC_TARBALL_ENVSUBST=$rc_tarball
 
 ## Render Script Templates
 envsubst_varlist=$( ruby -e 'puts ENV.keys.select{ |name| name.end_with?("_ENVSUBST") }.map{ |name| "$#{name}" }.join(",")' )
-echo "envsubst_varlist: $envsubst_varlist"
+
 envsubst "$envsubst_varlist" < ./pre_install.sh.tpl  > ./pre_install.sh
 envsubst "$envsubst_varlist" < ./rotate_version.sh.tpl > ./rotate_version.sh
 
