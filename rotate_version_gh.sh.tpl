@@ -1,6 +1,6 @@
 #!/bin/bash
 
-RC_DIR=$RC_DIR_ENVSUBST
+RC_DIR="$RC_DIR_ENVSUBST"
 
 set -e
 
