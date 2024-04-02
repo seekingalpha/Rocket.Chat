@@ -43,8 +43,8 @@ env | grep "ENVSUBST"
 ## Render Script Templates
 envsubst_varlist='$ENV_ENVSUBST,$RC_TARBALL_ENVSUBST,$AWS_DEFAULT_REGION_ENVSUBST,$S3_BUCKET_ENVSUBST,$RC_DIR_ENVSUBST'
 
-envsubst $envsubst_varlist < ./pre_install_gh.sh.tpl  > ./pre_install.sh
-envsubst $envsubst_varlist < ./rotate_version_gh.sh.tpl > ./rotate_version.sh
+envsubst "$envsubst_varlist" < ./pre_install_gh.sh.tpl  > ./pre_install.sh
+envsubst "$envsubst_varlist" < ./rotate_version_gh.sh.tpl > ./rotate_version.sh
 
 echo "print script pre_install.sh:"
 cat pre_install.sh
