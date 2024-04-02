@@ -41,10 +41,10 @@ echo "print ENVSUBST env:"
 env | grep "ENVSUBST"
 
 ## Render Script Templates
-envsubst_varlist='$ENV_ENVSUBST $RC_TARBALL_ENVSUBST $AWS_DEFAULT_REGION_ENVSUBST $S3_BUCKET_ENVSUBST $RC_DIR_ENVSUBST'
-
-envsubst '$ENV_ENVSUBST,$RC_TARBALL_ENVSUBST,$AWS_DEFAULT_REGION_ENVSUBST,$S3_BUCKET_ENVSUBST,$RC_DIR_ENVSUBST' < ./pre_install_gh.sh.tpl  > ./pre_install.sh
-envsubst '$ENV_ENVSUBST,$RC_TARBALL_ENVSUBST,$AWS_DEFAULT_REGION_ENVSUBST,$S3_BUCKET_ENVSUBST,$RC_DIR_ENVSUBST' < ./rotate_version_gh.sh.tpl > ./rotate_version.sh
+envsubst_varlist='$ENV_ENVSUBST,$RC_TARBALL_ENVSUBST,$AWS_DEFAULT_REGION_ENVSUBST,$S3_BUCKET_ENVSUBST,$RC_DIR_ENVSUBST'
+#see doc in https://github.com/a8m/envsubst
+envsubst "$envsubst_varlist" < ./pre_install_gh.sh.tpl  > ./pre_install.sh
+envsubst "$envsubst_varlist" < ./rotate_version_gh.sh.tpl > ./rotate_version.sh
 
 echo "print script pre_install.sh:"
 cat pre_install.sh
