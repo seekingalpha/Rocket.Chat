@@ -46,6 +46,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: install dependencies.
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y cloud-utils
+
       - name: Run deployment
         run: "$GITHUB_WORKSPACE/github.sh"
         shell: bash
