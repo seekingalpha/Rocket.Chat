@@ -8,6 +8,10 @@ S3_BUCKET=$S3_BUCKET_ENVSUBST
 
 set -e
 
+echo "RC_DIR: $RC_DIR"
+echo "RC_DIR: $RC_FILE"
+echo "S3_BUCKET: $S3_BUCKET"
+
 # Clean old RC dirs and create new
 prepare_directories () {
   echo "Removing previous release's directories..."
