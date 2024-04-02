@@ -37,31 +37,40 @@ export RC_DIR_ENVSUBST=$rc_dir
 export S3_BUCKET_ENVSUBST=$s3_bucket
 export RC_TARBALL_ENVSUBST=$rc_tarball
 
+echo "print ENVSUBST env:"
+env | grep "ENVSUBST"
+
 ## Render Script Templates
 envsubst_varlist='$ENV_ENVSUBST,$RC_TARBALL_ENVSUBST,$AWS_DEFAULT_REGION_ENVSUBST,$S3_BUCKET_ENVSUBST,$RC_DIR_ENVSUBST'
 
 envsubst "$envsubst_varlist" < ./pre_install_gh.sh.tpl  > ./pre_install.sh
 envsubst "$envsubst_varlist" < ./rotate_version_gh.sh.tpl > ./rotate_version.sh
 
-### When deploying to production, run using the "rocketchat-deploy" role
-#if [[ $environment == production ]] ; then
-#  assumed_role_json=$(
-#    aws \
-#      --output json \
-#      sts assume-role \
-#      --role-arn arn:aws:iam::618678420696:role/switch-account-deploy-rocket-chat \
-#      --role-session-name rocketchat-deploy
-#  )
-#  assumed_role_variables=$(
-#    echo "${assumed_role_json}" | jq -r \
-#    '
-#      "export AWS_SESSION_TOKEN=" + .Credentials.SessionToken + "\n" +
-#      "export AWS_ACCESS_KEY_ID=" + .Credentials.AccessKeyId + "\n" +
-#      "export AWS_SECRET_ACCESS_KEY=" + .Credentials.SecretAccessKey + "\n"
-#    '
-#  )
-#  eval "$assumed_role_variables"
-#fi
+echo "print script pre_install.sh:"
+cat pre_install.sh
+echo "print script rotate_version.sh:"
+cat rotate_version.sh
+
+
+## When deploying to production, run using the "rocketchat-deploy" role
+if [[ $environment == production ]] ; then
+  assumed_role_json=$(
+    aws \
+      --output json \
+      sts assume-role \
+      --role-arn arn:aws:iam::618678420696:role/switch-account-deploy-rocket-chat \
+      --role-session-name rocketchat-deploy
+  )
+  assumed_role_variables=$(
+    echo "${assumed_role_json}" | jq -r \
+    '
+      "export AWS_SESSION_TOKEN=" + .Credentials.SessionToken + "\n" +
+      "export AWS_ACCESS_KEY_ID=" + .Credentials.AccessKeyId + "\n" +
+      "export AWS_SECRET_ACCESS_KEY=" + .Credentials.SecretAccessKey + "\n"
+    '
+  )
+  eval "$assumed_role_variables"
+fi
 
 ## Get instance IPs one per line (multiline string)
 rc_instance_ips=$(
