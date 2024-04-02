@@ -56,6 +56,7 @@ jobs:
         run: |
           sudo apt-get update -y
           sudo apt-get install -y cloud-utils
+          sudo apt install -y pssh
 
       - name: Configure AWS Credentials
         if: ${{ inputs.environment == 'staging' }}
