@@ -46,19 +46,36 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: install envsubst
-        run: |          
-          curl -L https://github.com/a8m/envsubst/releases/download/v1.2.0/envsubst-`uname -s`-`uname -m` -o envsubst
-          chmod +x envsubst
-          sudo mv envsubst /usr/local/bin
-
-      - name: install dependencies.
+      - name: Configure AWS Credentials
+        if: ${{ inputs.environment == 'staging' }}
         run: |
-          sudo apt-get update -y
-          sudo apt-get install -y cloud-utils  
+          echo "staging"    
 
-      - name: Run deployment
-        run: "$GITHUB_WORKSPACE/github.sh"
-        shell: bash
-        env:
-          ENVIRONMENT_NAME: ${{ inputs.environment }}
+      - name: Configure AWS Credentials
+        if: ${{ inputs.environment == 'production' }}
+        run: |
+          echo "production"   
+
+#      - name: install envsubst
+#        run: |
+#          curl -L https://github.com/a8m/envsubst/releases/download/v1.2.0/envsubst-`uname -s`-`uname -m` -o envsubst
+#          chmod +x envsubst
+#          sudo mv envsubst /usr/local/bin
+#
+#      - name: install dependencies.
+#        run: |
+#          sudo apt-get update -y
+#          sudo apt-get install -y cloud-utils
+#
+#
+#
+##        uses: aws-actions/configure-aws-credentials@v4
+##        with:
+##          role-to-assume: ${{ vars.AWS_ROLE_TO_ASSUME_STAGING }}
+##          aws-region: ${{ vars.AWS_REGION }}
+#
+#      - name: Run deployment
+#        run: "$GITHUB_WORKSPACE/github.sh"
+#        shell: bash
+#        env:
+#          ENVIRONMENT_NAME: ${{ inputs.environment }}
