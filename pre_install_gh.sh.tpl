@@ -15,6 +15,7 @@ echo "S3_BUCKET: $S3_BUCKET"
 # Clean old RC dirs and create new
 prepare_directories () {
   echo "Removing previous release's directories..."
+  ls
   sudo rm -rf $RC_DIR-{new,old}
   sudo mkdir -p $RC_DIR-new
 }
