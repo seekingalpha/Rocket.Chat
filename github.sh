@@ -104,6 +104,7 @@ hr
 ## Update the version marker file
 echo "Mark which RC build is now active..."
 current_marker_file="rocket.chat-$environment.tgz"
+aws sts get-caller-identity
 aws s3 cp "s3://$s3_bucket/$rc_tarball" "s3://$s3_bucket/$current_marker_file" --acl public-read
 hr
 
