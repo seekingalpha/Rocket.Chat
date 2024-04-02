@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 echo "run rotate"
 
 #RC_DIR=$RC_DIR_ENVSUBST
