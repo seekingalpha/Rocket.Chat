@@ -38,7 +38,8 @@ export S3_BUCKET_ENVSUBST=$s3_bucket
 export RC_TARBALL_ENVSUBST=$rc_tarball
 
 ## Render Script Templates
-envsubst_varlist=$( ruby -e 'puts ENV.keys.select{ |name| name.end_with?("_ENVSUBST") }.map{ |name| "$#{name}" }.join(",")' )
+envsubst_varlist='$ENV_ENVSUBST,$RC_TARBALL_ENVSUBST,$AWS_DEFAULT_REGION_ENVSUBST,$S3_BUCKET_ENVSUBST,$RC_DIR_ENVSUBST'
+echo "envsubst_varlist: $envsubst_varlist"
 envsubst "$envsubst_varlist" < ./pre_install.sh.tpl  > ./pre_install.sh
 envsubst "$envsubst_varlist" < ./rotate_version.sh.tpl > ./rotate_version.sh
 
