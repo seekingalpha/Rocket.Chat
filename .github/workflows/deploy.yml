@@ -72,6 +72,12 @@ jobs:
           role-to-assume: ${{ vars.AWS_ROLE_TO_ASSUME_PRODUCTION }}
           aws-region: ${{ vars.AWS_REGION }}
 
+      #this is the private key for ci user, used by jenkins slave, can be found in ssm parameter staging jenkins slave. that allows ssh to airflow.
+      - name: install the ci private key
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: '${{ secrets.CI_SSH_PRIVATE_KEY }}'
+
       - name: Run deployment
         run: "$GITHUB_WORKSPACE/github.sh"
         shell: bash
