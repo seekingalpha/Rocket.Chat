@@ -92,17 +92,17 @@ parallel-ssh \
   --send-input < ./rotate_version.sh
 hr
 
-### Update the version marker file
-#echo "Mark which RC build is now active..."
-#current_marker_file="rocket.chat-$environment.tgz"
-#aws s3 cp "s3://$s3_bucket/$rc_tarball" "s3://$s3_bucket/$current_marker_file" --acl public-read
-#hr
-#
-### Flush CDN
-#echo "Flushing $environment CDN"
-#unset AWS_SESSION_TOKEN
-#unset AWS_ACCESS_KEY_ID
-#unset AWS_SECRET_ACCESS_KEY
-#FASTLY_SERVICE=$(aws ssm get-parameter --name /rocketchat/fastly_service_id --with-decryption --query Parameter.Value --output text)
-#FASTLY_TOKEN=$(aws ssm get-parameter --name /rocketchat/fastly_api_key --with-decryption --query Parameter.Value --output text)
-#curl -X POST -H "Fastly-Key: $FASTLY_TOKEN" "https://api.fastly.com/service/$FASTLY_SERVICE/purge/$environment"
+## Update the version marker file
+echo "Mark which RC build is now active..."
+current_marker_file="rocket.chat-$environment.tgz"
+aws s3 cp "s3://$s3_bucket/$rc_tarball" "s3://$s3_bucket/$current_marker_file" --acl public-read
+hr
+
+## Flush CDN
+echo "Flushing $environment CDN"
+unset AWS_SESSION_TOKEN
+unset AWS_ACCESS_KEY_ID
+unset AWS_SECRET_ACCESS_KEY
+FASTLY_SERVICE=$(aws ssm get-parameter --name /rocketchat/fastly_service_id --with-decryption --query Parameter.Value --output text)
+FASTLY_TOKEN=$(aws ssm get-parameter --name /rocketchat/fastly_api_key --with-decryption --query Parameter.Value --output text)
+curl -X POST -H "Fastly-Key: $FASTLY_TOKEN" "https://api.fastly.com/service/$FASTLY_SERVICE/purge/$environment"
