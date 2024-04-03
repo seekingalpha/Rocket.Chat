@@ -110,9 +110,6 @@ hr
 
 ## Flush CDN
 echo "Flushing $environment CDN"
-unset AWS_SESSION_TOKEN
-unset AWS_ACCESS_KEY_ID
-unset AWS_SECRET_ACCESS_KEY
 FASTLY_SERVICE=$(aws ssm get-parameter --name /rocketchat/fastly_service_id --with-decryption --query Parameter.Value --output text)
 FASTLY_TOKEN=$(aws ssm get-parameter --name /rocketchat/fastly_api_key --with-decryption --query Parameter.Value --output text)
 curl -X POST -H "Fastly-Key: $FASTLY_TOKEN" "https://api.fastly.com/service/$FASTLY_SERVICE/purge/$environment"
