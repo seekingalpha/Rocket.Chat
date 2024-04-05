@@ -20,7 +20,7 @@ stop_rc () {
     echo "Waiting for service to stop..."
     for service in $(find_rocket)
     do
-        until [ "$(systemctl show $$service -p ActiveState)" = "ActiveState=inactive" ]
+        until [ "$(systemctl show $service -p ActiveState)" = "ActiveState=inactive" ]
         do
             printf '.'
             sleep 2
@@ -35,7 +35,7 @@ start_rocket_and_wait_for_response () {
     timeout=60
     until $(curl --output /dev/null --silent --head --fail http://localhost)
     do
-        if [ "$$timeout" = "0" ]
+        if [ "$timeout" = "0" ]
         then
             echo -e "\nWaiting timed out - Rocket.Chat not responding yet"
             exit 1
@@ -50,15 +50,15 @@ start_rocket_and_wait_for_response () {
 update_rc () {
     stop_rc
     echo "Switching versions..."
-    sudo mv $$RC_DIR{,-old}
-    sudo mv $$RC_DIR{-new,}
+    sudo mv $RC_DIR{,-old}
+    sudo mv $RC_DIR{-new,}
     start_rocket_and_wait_for_response
 }
 
 # Delete previous version
 cleanup () {
     echo "Cleaning up old directories..."
-    sudo rm -rf $$RC_DIR-old
+    sudo rm -rf $RC_DIR-old
 }
 
 update_rc
