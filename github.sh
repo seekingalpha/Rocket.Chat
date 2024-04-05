@@ -40,8 +40,10 @@ export RC_TARBALL_ENVSUBST=$rc_tarball
 echo "print ENVSUBST env:"
 env | grep "ENVSUBST"
 
+#append all "_ENVSUBST" env vars keys to a online commas separated.
+b=""; for i in $(printenv | grep "_ENVSUBST" | sed 's;=.*;;'); do echo "$i"; b="$b\$$i,"; done; b=${b::-1};
+envsubst_varlist="$b"
 ## Render Script Templates
-envsubst_varlist='$ENV_ENVSUBST,$RC_TARBALL_ENVSUBST,$AWS_DEFAULT_REGION_ENVSUBST,$S3_BUCKET_ENVSUBST,$RC_DIR_ENVSUBST'
 #see doc in https://github.com/a8m/envsubst
 envsubst "$envsubst_varlist" < ./pre_install_gh.sh.tpl  > ./pre_install.sh
 envsubst "$envsubst_varlist" < ./rotate_version_gh.sh.tpl > ./rotate_version.sh
