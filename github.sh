@@ -46,8 +46,8 @@ envsubst_varlist="$b"
 echo "$envsubst_varlist"
 ## Render Script Templates
 #see doc in https://github.com/a8m/envsubst
-envsubst "$envsubst_varlist" < ./pre_install_gh.sh.tpl  > ./pre_install.sh
-envsubst "$envsubst_varlist" < ./rotate_version_gh.sh.tpl > ./rotate_version.sh
+envsubst "$envsubst_varlist" < ./pre_install.sh.tpl  > ./pre_install.sh
+envsubst "$envsubst_varlist" < ./rotate_version.sh.tpl > ./rotate_version.sh
 
 echo "print script pre_install.sh:"
 cat pre_install.sh
