@@ -43,6 +43,7 @@ env | grep "ENVSUBST"
 #append all "_ENVSUBST" env vars keys to a online commas separated.
 b=""; for i in $(printenv | grep "_ENVSUBST" | sed 's;=.*;;'); do echo "$i"; b="$b\$$i,"; done; b=${b::-1};
 envsubst_varlist="$b"
+echo "$envsubst_varlist"
 ## Render Script Templates
 #see doc in https://github.com/a8m/envsubst
 envsubst "$envsubst_varlist" < ./pre_install_gh.sh.tpl  > ./pre_install.sh

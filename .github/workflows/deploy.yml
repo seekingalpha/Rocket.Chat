@@ -31,7 +31,7 @@ on:
           - production
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ inputs.environment }}
 
 defaults:
   run:
