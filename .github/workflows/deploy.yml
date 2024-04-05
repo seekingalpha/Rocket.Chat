@@ -56,8 +56,8 @@ jobs:
         run: |
           sudo apt-get update -y
           sudo apt-get install -y cloud-utils
-          sudo apt install -y pssh
-          sudo get install -y gettext
+          sudo apt-get install -y pssh
+          sudo apt-get install -y gettext
 
       - name: Configure AWS Credentials
         if: ${{ inputs.environment == 'staging' }}
