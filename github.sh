@@ -45,26 +45,6 @@ envsubst_varlist="$b"
 envsubst "$envsubst_varlist" < ./pre_install.sh.tpl  > ./pre_install.sh
 envsubst "$envsubst_varlist" < ./rotate_version.sh.tpl > ./rotate_version.sh
 
-## When deploying to production, run using the "rocketchat-deploy" role
-if [[ $environment == production ]] ; then
-  assumed_role_json=$(
-    aws \
-      --output json \
-      sts assume-role \
-      --role-arn arn:aws:iam::618678420696:role/switch-account-deploy-rocket-chat \
-      --role-session-name rocketchat-deploy
-  )
-  assumed_role_variables=$(
-    echo "${assumed_role_json}" | jq -r \
-    '
-      "export AWS_SESSION_TOKEN=" + .Credentials.SessionToken + "\n" +
-      "export AWS_ACCESS_KEY_ID=" + .Credentials.AccessKeyId + "\n" +
-      "export AWS_SECRET_ACCESS_KEY=" + .Credentials.SecretAccessKey + "\n"
-    '
-  )
-  eval "$assumed_role_variables"
-fi
-
 ## Get instance IPs one per line (multiline string)
 rc_instance_ips=$(
   aws ec2 describe-instances \
@@ -73,7 +53,6 @@ rc_instance_ips=$(
       --query "Reservations[*].Instances[*].NetworkInterfaces[0].PrivateIpAddress" \
       --output text
 )
-
 
 ## Install RC tarball (and its dependencies) onto all RC nodes
 hr
@@ -94,14 +73,15 @@ parallel-ssh \
   --send-input < ./rotate_version.sh
 hr
 
-## Update the version marker file
-echo "Mark which RC build is now active..."
-current_marker_file="rocket.chat-$environment.tgz"
-aws s3 cp "s3://$s3_bucket/$rc_tarball" "s3://$s3_bucket/$current_marker_file" --acl public-read
-hr
-
-## Flush CDN
-echo "Flushing $environment CDN"
-FASTLY_SERVICE=$(aws ssm get-parameter --name /rocketchat/fastly_service_id --with-decryption --query Parameter.Value --output text)
-FASTLY_TOKEN=$(aws ssm get-parameter --name /rocketchat/fastly_api_key --with-decryption --query Parameter.Value --output text)
-curl -X POST -H "Fastly-Key: $FASTLY_TOKEN" "https://api.fastly.com/service/$FASTLY_SERVICE/purge/$environment"
+### Update the version marker file
+#echo "Mark which RC build is now active..."
+#current_marker_file="rocket.chat-$environment.tgz"
+#aws s3 cp "s3://$s3_bucket/$rc_tarball" "s3://$s3_bucket/$current_marker_file" --acl public-read
+#hr
+#
+### Flush CDN
+#echo "Flushing $environment CDN"
+#FASTLY_SERVICE=$(aws ssm get-parameter --name /rocketchat/fastly_service_id --with-decryption --query Parameter.Value --output text)
+#FASTLY_TOKEN=$(aws ssm get-parameter --name /rocketchat/fastly_api_key --with-decryption --query Parameter.Value --output text)
+#curl -X POST -H "Fastly-Key: $FASTLY_TOKEN" "https://api.fastly.com/service/$FASTLY_SERVICE/purge/$environment"
+#
