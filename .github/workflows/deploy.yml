@@ -51,7 +51,7 @@ jobs:
           sudo apt-get update -y
           sudo apt-get install -y cloud-utils
           sudo apt-get install -y pssh
-        #this is for GNU envsubst
+#this is for GNU envsubst
           sudo apt-get install -y gettext
 
       - name: Configure AWS Credentials
