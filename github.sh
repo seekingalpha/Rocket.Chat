@@ -70,18 +70,18 @@ export S3_BUCKET_ENVSUBST=$s3_bucket
 for dollar__varname__non_final_comma in $(printenv | grep '^\w*_ENVSUBST=' | sed 's/=.*//; s/^/$/; $!s/$/,/') ; do
   envsubst_varlist+=$dollar__varname__non_final_comma
 done
-envsubst "$envsubst_varlist" < pre_install.sh.tpl    > pre_install.sh
-envsubst "$envsubst_varlist" < rotate_version.sh.tpl > rotate_version.sh
+envsubst "$envsubst_varlist" < install_tarball.sh.tpl    > install_tarball.sh
+envsubst "$envsubst_varlist" < activate_new_build.sh.tpl > activate_new_build.sh
 
 
 ## Install RC tarball (and its dependencies) onto all RC nodes
 echo "Installing new build onto all RC nodes..."
-run_script_on_ec2_instances pre_install.sh "$rc_instance_ips"  # TODO: Rename to install_tarball.sh
+run_script_on_ec2_instances install_tarball.sh "$rc_instance_ips"
 hr
 
 ## Activate new version
 echo "Activating new build on all RC nodes..."
-run_script_on_ec2_instances rotate_version.sh "$rc_instance_ips"  # TODO: Rename to activate_new_build.sh
+run_script_on_ec2_instances activate_new_build.sh "$rc_instance_ips"
 hr
 
 ## Flush CDN

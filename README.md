@@ -25,5 +25,5 @@ which is used for three purposes:
   obtains credentials and runs `./github.sh`
 - `github.sh` uses the `*.sh.tpl` template files to prepare `*.sh` files
   which are executed on the rocketchat EC2 nodes via ssh:
-  - `pre_install.sh` installs the RC bundle tarball and its dependencies into a temporary folder
-  - `rotate_version.sh` swaps out the old installation folder with the new one and HUPs the daemon
+  - `install_tarball.sh` installs the RC bundle tarball and its dependencies into a temporary folder
+  - `activate_new_build.sh` swaps out the old installation folder with the new one and HUPs the daemon
