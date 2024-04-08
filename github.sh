@@ -10,7 +10,16 @@ function hr() {
   echo "==========================================================================="
 }
 
-hr
+function run_script_on_ec2_instances() {
+  local script_file=${1:?}
+  local ip_list_as_multiline_string=${2:?}
+  parallel-ssh \
+    -x "-o StrictHostKeyChecking=no" \
+    --inline --timeout 600 \
+    --user deploy \
+    --hosts <(echo "$ip_list_as_multiline_string") \
+    --send-input < "$script_file"
+}
 
 
 ## Gather all needed data
@@ -67,20 +76,12 @@ envsubst "$envsubst_varlist" < rotate_version.sh.tpl > rotate_version.sh
 
 ## Install RC tarball (and its dependencies) onto all RC nodes
 echo "Installing new build onto all RC nodes..."
-parallel-ssh \
-  -x  "-o StrictHostKeyChecking=no" \
-  --inline --timeout 600 --user deploy \
-  --hosts <(echo "$rc_instance_ips") \
-  --send-input < pre_install.sh            # TODO: Rename to install_tarball.sh
+run_script_on_ec2_instances pre_install.sh "$rc_instance_ips"  # TODO: Rename to install_tarball.sh
 hr
 
 ## Activate new version
 echo "Activating new build on all RC nodes..."
-parallel-ssh \
-  -x  "-o StrictHostKeyChecking=no" \
-  --inline --timeout 600 --user deploy \
-  --hosts <(echo "$rc_instance_ips") \
-  --send-input < rotate_version.sh         # TODO: Rename to activate_new_build.sh
+run_script_on_ec2_instances rotate_version.sh "$rc_instance_ips"  # TODO: Rename to activate_new_build.sh
 hr
 
 ## Flush CDN
