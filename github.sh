@@ -56,9 +56,11 @@ export RC_DIR_ENVSUBST=$rc_dir
 export RC_TARBALL_ENVSUBST=$rc_tarball
 export S3_BUCKET_ENVSUBST=$s3_bucket
 
-#append all "_ENVSUBST" env vars keys to a online commas separated.
-b=""; for i in $(printenv | grep "_ENVSUBST" | sed 's;=.*;;'); do echo "$i"; b="$b\$$i,"; done; b=${b::-1};
-envsubst_varlist="$b"
+# envsubst only expands template variables it is told about via
+# an argument with format '$foo,$bar,$baz'
+for dollar__varname__non_final_comma in $(printenv | grep '^\w*_ENVSUBST=' | sed 's/=.*//; s/^/$/; $!s/$/,/') ; do
+  envsubst_varlist+=$dollar__varname__non_final_comma
+done
 envsubst "$envsubst_varlist" < pre_install.sh.tpl    > pre_install.sh
 envsubst "$envsubst_varlist" < rotate_version.sh.tpl > rotate_version.sh
 
