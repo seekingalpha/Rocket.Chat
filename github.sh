@@ -1,31 +1,25 @@
 #!/bin/bash
+## This script is invoked by the GitHub workflow ".github/workflows/deploy.yml".
+## It expects the following environment variables to be defined:
+## - $environment : Either `staging` or `production`
+## - $version     : Either the full tarball filename or just its {rc_version}.{commit_hash} substring
 
 set -o errexit
-
-case $ENVIRONMENT_NAME in
-  *staging*)    environment=staging ;;
-  *production*) environment=production ;;
-  *)            echo "ERROR: Can’t infer environment from job name!"; exit 99 ;;
-esac
-
-echo $environment
-
-rc_dir="/opt/rocket-chat"
-s3_bucket="seekingalpha-rocketchat-builds"
-
-## Note: $version is a Jenkins job parameter.
-## We accept either the full tarball filename or just its version substring.
-if [[ "$version" == rocket.chat-*.tgz ]]
-then
-  rc_tarball="$version"
-else
-  rc_tarball="rocket.chat-$version.tgz"
-fi
 
 function hr() {
   echo "==========================================================================="
 }
 
+rc_dir=/opt/rocket-chat
+s3_bucket=seekingalpha-rocketchat-builds
+
+# The RC installation tarball is named "rocket.chat-{rc_version}.{commit_hash}.tgz".
+# The $version parameter may be either the full tarball filename or just its {rc_version}.{commit_hash} substring.
+if [[ "$version" == rocket.chat-*.tgz ]] ; then
+  rc_tarball="$version"
+else
+  rc_tarball="rocket.chat-$version.tgz"
+fi
 
 ## Strip off the trailing letter from the region: Use us-west-2, not us-west-2a
 export AWS_DEFAULT_REGION=$(ec2metadata --availability-zone | awk '{print substr($0,1,length($0)-1)}')
@@ -34,8 +28,8 @@ export AWS_DEFAULT_REGION=$(ec2metadata --availability-zone | awk '{print substr
 export AWS_DEFAULT_REGION_ENVSUBST=$AWS_DEFAULT_REGION
 export ENV_ENVSUBST=$environment
 export RC_DIR_ENVSUBST=$rc_dir
-export S3_BUCKET_ENVSUBST=$s3_bucket
 export RC_TARBALL_ENVSUBST=$rc_tarball
+export S3_BUCKET_ENVSUBST=$s3_bucket
 
 #append all "_ENVSUBST" env vars keys to a online commas separated.
 b=""; for i in $(printenv | grep "_ENVSUBST" | sed 's;=.*;;'); do echo "$i"; b="$b\$$i,"; done; b=${b::-1};

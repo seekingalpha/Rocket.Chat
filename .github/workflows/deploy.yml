@@ -69,5 +69,5 @@ jobs:
         run: "$GITHUB_WORKSPACE/github.sh"
         shell: bash
         env:
-          ENVIRONMENT_NAME: ${{ inputs.environment }}
+          environment: ${{ inputs.environment }}
           version: ${{ inputs.version }}
