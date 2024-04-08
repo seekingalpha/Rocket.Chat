@@ -3,8 +3,8 @@
 set -o errexit
 
 case $ENVIRONMENT_NAME in
-  *staging*)    environment=staging ;;
-  *production*) environment=production ;;
+  staging)    environment=staging ;;
+  production) environment=production ;;
   *)            echo "ERROR: Can’t infer environment from job name!"; exit 99 ;;
 esac
 
