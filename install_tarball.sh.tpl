@@ -2,7 +2,7 @@
 AWS=/usr/local/bin/aws
 AWS_DEFAULT_REGION='$AWS_DEFAULT_REGION_ENVSUBST'
 RC_DIR='$RC_DIR_ENVSUBST'
-RC_FILE='$RC_TARBALL_ENVSUBST'
+RC_TARBALL='$RC_TARBALL_ENVSUBST'
 S3_BUCKET='$S3_BUCKET_ENVSUBST'
 
 set -e
@@ -17,14 +17,14 @@ prepare_directories () {
 # Download given RocketChat build
 build_rc () {
     local s3_path
-    s3_path="s3://$S3_BUCKET/$RC_FILE"
+    s3_path="s3://$S3_BUCKET/$RC_TARBALL"
     tmprcdir=$(mktemp -d)
     cd $tmprcdir
     echo "Downloading Rocket.Chat installation files.."
     $AWS s3 cp --quiet "$s3_path" .
     echo "Unpacking Rocket.Chat files..."
-    tar zxf "$RC_FILE"
-    rm -f "$RC_FILE"
+    tar zxf "$RC_TARBALL"
+    rm -f "$RC_TARBALL"
     echo "Installing modules..."
     # loglevels (high to low): error, warn, notice, http, timing, info, verbose, silly
     #   default = notice
