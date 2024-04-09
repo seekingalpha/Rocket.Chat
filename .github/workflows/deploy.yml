@@ -23,6 +23,15 @@ jobs:
     environment: ${{ inputs.environment }}
     runs-on: rocketchat  # https://github.com/seekingalpha/Rocket.Chat/settings/actions/runners
     steps:
+      - name: Log our configuration inputs  # Right here at the top, so they are easy to find
+        env:
+          environment: ${{ inputs.environment }}
+          version: ${{ inputs.version }}
+        run: |
+          echo 'Running the "Deploy to EC2" workflow with the following config vars:'
+          echo "  - version: $version"
+          echo "  - environment: $environment"
+
       - name: Checkout deploy script branch
         uses: actions/checkout@v4
 
