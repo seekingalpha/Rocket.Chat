@@ -1,34 +1,20 @@
+name: Deploy to EC2
+run-name: Deploy to ${{ inputs.environment }} (${{ inputs.version }})
+
 on:
   workflow_dispatch:
     inputs:
       version:
+        description: Tarball (either the full filename or just its {rc_version}.{commit_hash} substring)
         type: string
-        description: |
-          version:
-          
-            RC version + git commit number.
-
-            For a list of available versions, look in
-
-            s3://seekingalpha-rocketchat-builds/
-
-            for rocket.chat-VERSION.tgz
-
-            Special versions:
-
-            latest  = version last built
-
-            staging = version last deployed to staging
-
-            production = version last deployed to production
         required: true
-
       environment:
+        description: Deploy to
         type: choice
-        description: chose the AWS environment
         options:
           - staging
           - production
+        required: true
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}-${{ inputs.environment }}
@@ -39,35 +25,43 @@ defaults:
 
 jobs:
   deploy:
-    name: deploy
+    name: Deploy to EC2
     environment: ${{ inputs.environment }}
-    runs-on: [rocketchat]
+    runs-on: rocketchat  # https://github.com/seekingalpha/Rocket.Chat/settings/actions/runners
     steps:
-      - name: Checkout code
+      - name: CONFIG VARS  # Log our configuration inputs right here at the top, so they are easy to find
+        env:
+          environment: ${{ inputs.environment }}
+          version: ${{ inputs.version }}
+        run: |
+          echo
+          echo 'Running the "Deploy to EC2" workflow with the following config vars:'
+          echo "  - version: $version"
+          echo "  - environment: $environment"
+
+      - name: Checkout deploy script branch
         uses: actions/checkout@v4
 
-      - name: install dependencies.
+      - name: Install dependencies
         run: |
           sudo apt-get update -y
           sudo apt-get install -y cloud-utils
           sudo apt-get install -y pssh
-          sudo apt-get install -y gettext
+          sudo apt-get install -y gettext      # provides envsubst(1) template renderer
 
-      - name: Configure AWS Credentials
+      - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ vars.AWS_ROLE_TO_ASSUME }}
           aws-region: ${{ vars.AWS_REGION }}
 
-      #this is the private key for ci user, used by jenkins slave, can be found in ssm parameter staging jenkins slave. that allows ssh to airflow.
-      - name: install the ci private key
+      - name: Obtain the SSH private key for logging in to RC EC2 instances
         uses: webfactory/ssh-agent@v0.9.0
         with:
           ssh-private-key: '${{ secrets.CI_SSH_PRIVATE_KEY }}'
 
-      - name: Run deployment
-        run: "$GITHUB_WORKSPACE/github.sh"
-        shell: bash
+      - name: Run deploy script
+        run: ./github.sh
         env:
-          ENVIRONMENT_NAME: ${{ inputs.environment }}
+          environment: ${{ inputs.environment }}
           version: ${{ inputs.version }}
