@@ -99,15 +99,23 @@ const getUrlContent = async (urlObj: URL, redirectCount = 5): Promise<OEmbedUrlC
 	const sizeLimit = 250000;
 
 	log.debug(`Fetching ${url} following redirects ${redirectCount} times`);
+
+	const hittingSAPI =
+		(process.env.SPEAKEASY_HTTP_HEADER_NAME && process.env.SPEAKEASY_HTTP_HEADER_VALUE) &&
+		(urlObj.hostname === 'seekingalpha.com' || urlObj.hostname.endsWith('.seekingalpha.com'));
+
 	const response = await fetch(
 		url,
 		{
 			compress: true,
 			follow: redirectCount,
-			headers: {
-				'User-Agent': `${settings.get('API_Embed_UserAgent')} Rocket.Chat/${Info.version}`,
-				'Accept-Language': settings.get('Language') || 'en',
-			},
+			headers: Object.assign(
+				{
+					'User-Agent': `${settings.get('API_Embed_UserAgent')} Rocket.Chat/${Info.version}`,
+					'Accept-Language': settings.get('Language') || 'en',
+				},
+				hittingSAPI ? { [process.env.SPEAKEASY_HTTP_HEADER_NAME]: process.env.SPEAKEASY_HTTP_HEADER_VALUE } : {},
+			),
 			size: sizeLimit, // max size of the response body, this was not working as expected so I'm also manually verifying that on the iterator
 		},
 		settings.get('Allow_Invalid_SelfSigned_Certs'),
