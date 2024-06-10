@@ -96,7 +96,7 @@ const getUrlContent = async (urlObj: URL, redirectCount = 5): Promise<OEmbedUrlC
 	});
 
 	const url = data.urlObj.toString();
-	const sizeLimit = 250000;
+	const sizeLimit = 1 * 1024 * 1024;  // 1 MB. Was originally 250 KB, but SAPI MP articles exceed that 2-fold.  // 250000;
 
 	log.debug(`Fetching ${url} following redirects ${redirectCount} times`);
 
