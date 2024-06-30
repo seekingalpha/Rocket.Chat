@@ -195,9 +195,15 @@ export function shouldNotifyEmail({
 	hasReplyToThread,
 	roomType,
 	isThread,
+	message,
 }) {
 	// email notifications are disabled globally
 	if (!settings.get('Accounts_AllowEmailNotifications')) {
+		return false;
+	}
+
+	// Support special-casing specific messages
+	if (message.customFields?.skip_offline_email_notification) {
 		return false;
 	}
 
