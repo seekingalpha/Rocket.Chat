@@ -179,6 +179,7 @@ export const sendNotification = async ({
 			hasReplyToThread,
 			roomType,
 			isThread,
+			message,
 		})
 	) {
 		const messageWithUnicode = message.msg ? emojione.shortnameToUnicode(message.msg) : message.msg;
