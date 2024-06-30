@@ -189,6 +189,7 @@ export const sendNotification = async ({
 			hasReplyToThread,
 			roomType,
 			isThread,
+			message,
 		})
 	) {
 		const messageWithUnicode = message.msg ? shortnameToUnicode(message.msg) : message.msg;
