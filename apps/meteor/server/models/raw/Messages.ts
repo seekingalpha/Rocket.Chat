@@ -866,13 +866,13 @@ export class MessagesRaw extends BaseRaw<IMessage> implements IMessagesModel {
 	findForUpdates(roomId: string, timestamp: Date, options?: FindOptions<IMessage>): FindCursor<IMessage> {
 		// HACK: To support bulk username renames without causing massive load (due to fetching every ancient post),
 		// only fetch recently created messages.
-		const duration_3_months_in_ms = 3 * 30 * 24 * 60 * 60 * 1000
-		const date_3_months_ago = new Date(Date.now() - duration_3_months_in_ms)
+		const duration_3_weeks_in_ms = 3 * 7 * 24 * 60 * 60 * 1000
+		const date_3_weeks_ago = new Date(Date.now() - duration_3_weeks_in_ms)
 
 		const query = {
 			rid: roomId,
 			ts: {
-				$gte: date_3_months_ago,
+				$gte: date_3_weeks_ago,
 			},
 			_updatedAt: {
 				$gt: timestamp,
