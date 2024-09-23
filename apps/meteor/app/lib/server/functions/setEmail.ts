@@ -28,7 +28,8 @@ const _sendEmailChangeNotification = async function (to: string, newEmail: strin
 	};
 
 	try {
-		await Mailer.send(email);
+		// NEVER send "email change notifications". The RC email address is managed by SAPI. SAPI will handle those notifications.
+		// await Mailer.send(email);
 	} catch (error: any) {
 		throw new Meteor.Error('error-email-send-failed', `Error trying to send email: ${error.message}`, {
 			function: 'setEmail',
