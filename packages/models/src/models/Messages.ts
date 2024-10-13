@@ -50,6 +50,14 @@ export class MessagesRaw extends BaseRaw<IMessage> implements IMessagesModel {
 			// The text index on `msg` is managed at startup by `ensureMessagesTextIndex`
 			// because its shape is controlled by the `USE_ROOM_SEARCH_INDEX` env var
 			// (default `{ msg: 'text' }` vs. room-scoped `{ rid: 1, msg: 'text' }`).
+			//
+			// NO!  I've disabled upstream’s USE_ROOM_SEARCH_INDEX implementation!
+			// My implementation additionally indexes u.username:1.
+			// Supports `from:UsernamePrefix word1 word2`,
+			// albeit without the time sorting of the next index.
+			{ key: { rid: 1, msg: 'text', 'u.username': 1 }, name: 'noach__rid_1_msg_text_u.username_1' },
+			// Supports `from:Username` searches (only when there are no bare words) but optimizes the time sort.
+			{ key: { rid: 1, ts: 1, 'u.username': 1 }, name: 'noach__rid_1_ts_1_u.username_1' },
 			{ key: { 'file._id': 1 }, sparse: true },
 			{ key: { 'files._id': 1 }, sparse: true },
 			{ key: { 'mentions.username': 1 }, sparse: true },
