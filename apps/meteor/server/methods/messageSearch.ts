@@ -53,7 +53,7 @@ Meteor.methods<ServerMethods>({
 			forceRegex: settings.get('Message_AlwaysSearchRegExp'),
 		});
 
-		if (Object.keys(query).length === 0) {
+		if (text.length < 3 || Object.keys(query).length === 0) {
 			return {
 				message: {
 					docs: [],
