@@ -31,7 +31,7 @@ Meteor.methods<ServerMethods>({
 
 		return {
 			key: provider.key,
-			description: provider.i18nDescription,
+			description: null,
 			icon: provider.iconName,
 			resultTemplate: provider.resultTemplate,
 			supportsSuggestions: provider.supportsSuggestions,
