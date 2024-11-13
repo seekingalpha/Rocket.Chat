@@ -248,27 +248,14 @@ class MessageSearchQueryParser {
 			return text;
 		}
 
-		if (/^\/.+\/[imxs]*$/.test(text)) {
-			const r = text.split('/');
-			this.query.msg = {
-				$regex: r[1],
-				$options: r[2],
-			};
-		} else if (this.forceRegex) {
-			this.query.msg = {
-				$regex: text,
-				$options: 'i',
-			};
-		} else {
-			this.query.$text = {
-				$search: text,
-			};
-			this.options.projection = {
-				score: {
-					$meta: 'textScore',
-				},
-			};
-		}
+		this.query.$text = {
+			$search: text,
+		};
+		this.options.projection = {
+			score: {
+				$meta: 'textScore',
+			},
+		};
 
 		return text;
 	}
