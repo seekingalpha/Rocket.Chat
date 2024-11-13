@@ -57,7 +57,6 @@ const MessageSearchForm = ({ provider, onSearch }: MessageSearchFormProps) => {
 					autoComplete='off'
 					{...register('searchText')}
 				/>
-				{provider.description && <FieldHint dangerouslySetInnerHTML={{ __html: t(provider.description as TranslationKey) }} />}
 			</Field>
 			{globalSearchEnabled && (
 				<Field>
