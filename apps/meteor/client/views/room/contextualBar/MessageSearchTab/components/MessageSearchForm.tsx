@@ -64,7 +64,6 @@ const MessageSearchForm = ({ provider, onSearch }: MessageSearchFormProps) => {
 							{...register('searchText')}
 						/>
 					</FieldRow>
-					{provider.description && <FieldHint dangerouslySetInnerHTML={{ __html: t(provider.description as TranslationKey) }} />}
 				</Field>
 				{globalSearchEnabled && (
 					<Field>
