@@ -45,7 +45,9 @@ class MessageSearchQueryParser {
 			from.push(username);
 
 			// Search for case-sensitive prefix match (no substrings)
-			this.query['u.username'] = { $in: from.map((prefix) => RegExp(`^${prefix}`)) };
+			this.query['u.username'] = {
+				$in: from.map((prefix) => RegExp(`^${prefix.replace(/\./g, '\\.')}`)),
+			};
 
 			return '';
 		});

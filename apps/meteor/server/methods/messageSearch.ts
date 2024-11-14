@@ -44,6 +44,19 @@ Meteor.methods<ServerMethods>({
 			};
 		}
 
+		// Fail-fast on search terms that are still being typed in
+		if (
+			text.length < 3                            // Too short to be meaningful. But support TLAs.
+			|| text.match(/^from?$/i)                  // `from:Username` in-progress.
+			|| text.match(/^from:[a-z0-9.\-_]{0,2}$/i) // Minimum 3 character usernames, lest we get too many hits
+		) {
+			return {
+				message: {
+					docs: [],
+				},
+			};
+		}
+
 		const user = (await Meteor.userAsync()) as IUser | undefined;
 
 		const { query, options } = parseMessageSearchQuery(text, {
@@ -53,7 +66,7 @@ Meteor.methods<ServerMethods>({
 			forceRegex: settings.get('Message_AlwaysSearchRegExp'),
 		});
 
-		if (text.length < 3 || Object.keys(query).length === 0) {
+		if (Object.keys(query).length === 0) {
 			return {
 				message: {
 					docs: [],
