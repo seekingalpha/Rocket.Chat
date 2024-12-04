@@ -52,7 +52,8 @@ export class MessagesRaw extends BaseRaw<IMessage> implements IMessagesModel {
 			{ key: { 'editedBy._id': 1 }, sparse: true },
 			{ key: { 'rid': 1, 't': 1, 'u._id': 1 } },
 			{ key: { expireAt: 1 }, expireAfterSeconds: 0 },
-			{ key: { rid: 1, msg: 'text' } },
+			{ key: { 'rid': 1, 'msg': 'text', 'u.username': 1 }, name: 'noach__rid_1_msg_text_u.username_1' },
+			{ key: { 'rid': 1, 'ts': 1, 'u.username': 1 }, name: 'noach__rid_1_ts_1_u.username_1' }, // Support `from:Username` searches (*sans* msg text terms)
 			{ key: { 'file._id': 1 }, sparse: true },
 			{ key: { 'files._id': 1 }, sparse: true },
 			{ key: { 'mentions.username': 1 }, sparse: true },
