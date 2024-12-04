@@ -27,6 +27,7 @@ import { createOmniSettings } from './omnichannel';
 import { createPushSettings } from './push';
 import { createRateLimitSettings } from './rate';
 import { createRetentionSettings } from './retention-policy';
+import { createSeekingAlphaSettings } from './seeking_alpha';
 import { createSetupWSettings } from './setup-wizard';
 import { createSlackBridgeSettings } from './slackbridge';
 import { createSmarshSettings } from './smarsh';
@@ -66,6 +67,7 @@ await Promise.all([
 	createPushSettings(),
 	createRateLimitSettings(),
 	createRetentionSettings(),
+	createSeekingAlphaSettings(),
 	createSetupWSettings(),
 	createSlackBridgeSettings(),
 	createSmarshSettings(),

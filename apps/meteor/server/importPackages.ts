@@ -110,3 +110,4 @@ import './lib/omnichannel';
 import './hooks/auth/login';
 import './lib/auth/startup';
 import './lib/auth-providers/github';
+import './cron/seeking-alpha/terms-of-use-violations';
