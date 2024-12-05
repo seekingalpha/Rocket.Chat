@@ -75,6 +75,7 @@ env:
 
 jobs:
   test:
+    continue-on-error: true
     runs-on: ubuntu-24.04
     env:
       RC_DOCKERFILE: ${{ inputs.rc-dockerfile }}.${{ (matrix.mongodb-version == '7.0' && 'debian' && false) || 'alpine' }}

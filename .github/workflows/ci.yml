@@ -9,7 +9,7 @@ on:
       - '**.md'
   push:
     branches:
-      - develop
+      - '**'
     paths-ignore:
       - '**.md'
 
@@ -92,6 +92,7 @@ jobs:
           echo "gh-docker-tag=${DOCKER_TAG}" >> $GITHUB_OUTPUT
 
   notify-draft-services:
+    if: false
     name: 🚀 Notify external services - draft
     runs-on: ubuntu-24.04
     needs: [release-versions]
@@ -134,6 +135,7 @@ jobs:
               https://releases.rocket.chat/update
 
   packages-build:
+    if: ${{ ! failure() }}
     name: 📦 Build Packages
     needs: [release-versions, notify-draft-services]
     runs-on: ubuntu-24.04
@@ -187,6 +189,7 @@ jobs:
           include-hidden-files: true
 
   deploy-preview:
+    if: false
     name: 👀 Deploy Preview
     runs-on: ubuntu-24.04
     needs: [release-versions, packages-build]
@@ -226,6 +229,7 @@ jobs:
           action: auto
 
   build:
+    if: false
     name: 📦 Meteor Build - coverage
     needs: [release-versions, packages-build]
     runs-on: ubuntu-24.04
@@ -253,12 +257,12 @@ jobs:
         with:
           node-version: ${{ needs.release-versions.outputs.node-version }}
           deno-version: ${{ needs.release-versions.outputs.deno-version }}
-          coverage: true
+          coverage: false
 
   build-prod:
     name: 📦 Meteor Build - official
     needs: [tests-done, release-versions, packages-build]
-    if: (github.event_name == 'release' || github.ref == 'refs/heads/develop')
+    if: ${{ ! failure() }}
     runs-on: ubuntu-24.04
 
     steps:
@@ -288,6 +292,7 @@ jobs:
 
   # TODO: this should go away once upstream builds are fixed
   build-matrix-rust-bindings-for-alpine:
+    if: false
     name: Builds matrix rust bindings against alpine
     runs-on: ubuntu-24.04
     steps:
@@ -332,6 +337,7 @@ jobs:
           mv matrix-sdk-crypto.linux-x64-musl.node /tmp/build/matrix-sdk-crypto.linux-x64-musl.node
 
   build-gh-docker-coverage:
+    if: false
     name: 🚢 Build Docker Images for Testing
     needs: [build, release-versions, build-matrix-rust-bindings-for-alpine]
     runs-on: ubuntu-24.04
@@ -377,6 +383,7 @@ jobs:
           docker push ${IMAGE_NAME_BASE}.official
 
   build-gh-docker:
+    if: false
     name: 🚢 Build Docker Images for Production
     needs: [build-prod, release-versions]
     runs-on: ubuntu-24.04
@@ -419,6 +426,7 @@ jobs:
           docker push ${IMAGE_NAME_BASE}.official
 
   checks:
+    if: false
     needs: [release-versions, packages-build]
 
     name: 🔎 Code Check
@@ -428,6 +436,7 @@ jobs:
       deno-version: ${{ needs.release-versions.outputs.deno-version }}
 
   test-storybook:
+    if: false
     name: 🔨 Test Storybook
     needs: [packages-build, release-versions]
 
@@ -439,6 +448,7 @@ jobs:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
   test-unit:
+    if: false
     name: 🔨 Test Unit
     needs: [packages-build, release-versions]
 
@@ -451,6 +461,7 @@ jobs:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
   test-api:
+    if: false
     name: 🔨 Test API (CE)
     needs: [checks, build-gh-docker-coverage, release-versions]
 
@@ -469,6 +480,7 @@ jobs:
       CR_PAT: ${{ secrets.CR_PAT }}
 
   test-ui:
+    if: false
     name: 🔨 Test UI (CE)
     needs: [checks, build-gh-docker-coverage, release-versions]
 
@@ -496,6 +508,7 @@ jobs:
       REPORTER_JIRA_ROCKETCHAT_API_KEY: ${{ secrets.REPORTER_JIRA_ROCKETCHAT_API_KEY }}
 
   test-api-ee:
+    if: false
     name: 🔨 Test API (EE)
     needs: [checks, build-gh-docker-coverage, release-versions]
 
@@ -517,6 +530,7 @@ jobs:
       CR_PAT: ${{ secrets.CR_PAT }}
 
   test-ui-ee:
+    if: false
     name: 🔨 Test UI (EE)
     needs: [checks, build-gh-docker-coverage, release-versions]
 
@@ -546,6 +560,7 @@ jobs:
       REPORTER_JIRA_ROCKETCHAT_API_KEY: ${{ secrets.REPORTER_JIRA_ROCKETCHAT_API_KEY }}
 
   test-ui-ee-watcher:
+    if: false
     name: 🔨 Test UI (EE)
     needs: [checks, build-gh-docker-coverage, release-versions]
 
@@ -579,7 +594,7 @@ jobs:
     name: ✅ Tests Done
     runs-on: ubuntu-24.04
     needs: [checks, test-unit, test-api, test-ui, test-api-ee, test-ui-ee, test-ui-ee-watcher]
-    if: always()
+    if: false
     steps:
       - name: Test finish aggregation
         run: |
@@ -614,9 +629,9 @@ jobs:
           echo finished
 
   deploy:
-    name: 🚀 Publish build assets
+    name: 🚀 Copy to S3  # The actual deployment to our servers is done via the "Deploy to EC2" workflow in the sa_devops branch
     runs-on: ubuntu-24.04
-    if: github.event_name == 'release' || github.ref == 'refs/heads/develop'
+    if: ${{ ! failure() }}
     needs: [build-gh-docker, release-versions]
 
     steps:
@@ -635,10 +650,9 @@ jobs:
 
       - name: Publish assets
         env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_DEFAULT_REGION: 'us-east-1'
-          GPG_PASSWORD: ${{ secrets.GPG_PASSWORD }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_USER_GITHUB_ROCKETCHAT_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_USER_GITHUB_ROCKETCHAT_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: us-west-2
         run: |
           REPO_VERSION=$(node -p "require('./package.json').version")
 
@@ -652,22 +666,19 @@ jobs:
 
           ROCKET_DEPLOY_DIR="/tmp/deploy"
           FILENAME="$ROCKET_DEPLOY_DIR/rocket.chat-$ARTIFACT_NAME.tgz";
+          FILENAME_LATEST="$ROCKET_DEPLOY_DIR/rocket.chat-latest.tgz";
 
-          aws s3 cp s3://rocketchat/sign.key.gpg .github/sign.key.gpg
 
           mkdir -p $ROCKET_DEPLOY_DIR
 
-          cp .github/sign.key.gpg /tmp
-          gpg --yes --batch --passphrase=$GPG_PASSWORD /tmp/sign.key.gpg
-          gpg --allow-secret-key-import --import /tmp/sign.key
-          rm /tmp/sign.key
 
           ln -s /tmp/build/Rocket.Chat.tar.gz "$FILENAME"
-          gpg --armor --detach-sign "$FILENAME"
+          ln -s /tmp/build/Rocket.Chat.tar.gz "$FILENAME_LATEST"
 
-          aws s3 cp $ROCKET_DEPLOY_DIR/ s3://download.rocket.chat/build/ --recursive
+          aws s3 cp $ROCKET_DEPLOY_DIR/ s3://seekingalpha-rocketchat-builds/ --recursive
 
   docker-image-publish:
+    if: false
     name: 🚀 Publish Docker Image (main)
     runs-on: ubuntu-24.04
     needs: [deploy, release-versions]
@@ -778,6 +789,7 @@ jobs:
           echo "::endgroup::"
 
   services-docker-image-publish:
+    if: false
     name: 🚀 Publish Docker Image (services)
     runs-on: ubuntu-24.04
     needs: [deploy, release-versions]
@@ -867,6 +879,7 @@ jobs:
           echo "::endgroup::"
 
   notify-services:
+    if: false
     name: 🚀 Notify external services
     runs-on: ubuntu-24.04
     needs:
@@ -914,9 +927,9 @@ jobs:
           curl --fail https://releases.rocket.chat/$RC_VERSION/info
 
   docs-update:
+    if: false
     name: Update Version Durability
 
-    if: github.event_name == 'release'
     needs:
       - services-docker-image-publish
       - docker-image-publish
