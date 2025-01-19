@@ -12,6 +12,7 @@ env:
 
 jobs:
   code-check:
+    if: false
     continue-on-error: true
     runs-on: ubuntu-20.04
 

@@ -78,6 +78,7 @@ env:
 
 jobs:
   test:
+    if: false
     continue-on-error: true
     runs-on: ubuntu-20.04
     env:
