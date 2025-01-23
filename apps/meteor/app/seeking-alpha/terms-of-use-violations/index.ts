@@ -10,8 +10,8 @@ import { Meteor } from 'meteor/meteor';
 import { readSecondaryPreferred } from '../../../server/database/readSecondaryPreferred';
 import { settings } from '../../settings/server';
 import Slack from '../utils/Slack';
+import { generateCSV } from '../utils/csv';
 import { yesterday, theDayAfter } from '../utils/datetime_functions';
-import { generateTSV } from '../utils/tsv';
 
 
 const CRON_JOB_NAME = 'seeking-alpha-terms-of-use-violations';
@@ -66,8 +66,8 @@ async function perform() {
 		if (docs.length > 0) {
 			LOG.info(`Keyword "${keyword}" has ${docs.length} violations`);
 			attachments.push({
-				filename: `${keyword}.tsv`,
-				content: generateTSV(docs),
+				filename: `${keyword}.csv`,
+				content: generateCSV(csvHeaders(), csvRows(docs)),
 			})
 		};
 	});
@@ -176,4 +176,24 @@ function buildMongoPipelineArray(matchDoc) {
 			}
 		}
 	];
+}
+
+function csvHeaders() {
+	return [
+		"Date",
+		"Sender Name",
+		"Sender ID",
+		"Room Name",
+		"Content",
+	];
+}
+
+function csvRows(docs) {
+	return docs.map(doc => [
+		doc.date.toISOString(),
+		doc.sender_name,
+		doc.sender_id,
+		doc.room_name,
+		doc.msg,
+	]);
 }
