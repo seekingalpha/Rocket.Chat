@@ -15,7 +15,7 @@ import { yesterday, theDayAfter } from '../utils/datetime_functions';
 
 
 const CRON_JOB_NAME = 'seeking-alpha-terms-of-use-violations';
-const CRON_JOB_SCHEDULE = '15 8 * * *';
+const CRON_JOB_SCHEDULE = '*/5 * * * *'; // '15 8 * * *';
 
 // To find a Slack channel’s channel ID, open the room in the Slack UI,
 // 3-dots > Open channel details > Channel ID (at bottom)
