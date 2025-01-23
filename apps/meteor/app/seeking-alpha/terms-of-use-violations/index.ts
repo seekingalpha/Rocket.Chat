@@ -11,7 +11,7 @@ import { readSecondaryPreferred } from '../../../server/database/readSecondaryPr
 import { settings } from '../../settings/server';
 import Slack from '../utils/Slack';
 import { generateCSV } from '../utils/csv';
-import { yesterday, theDayAfter } from '../utils/datetime_functions';
+import { yesterday, theDayAfter, today, nDaysBeforeDate } from '../utils/datetime_functions';
 
 
 const CRON_JOB_NAME = 'seeking-alpha-terms-of-use-violations';
@@ -53,7 +53,7 @@ async function perform() {
 	const attachments = [];
 
 	const promises = TERMS_TO_MONITOR.map(
-		keyword => aggregateMessagesContainingKeyword(keyword, yesterday())
+		keyword => aggregateMessagesContainingKeyword(keyword, nDaysBeforeDate(14, today()))
 	);
 	const aggregations = await Promise.all(promises);
 
@@ -97,7 +97,7 @@ function buildMongoMatchDoc(searchPattern, date) {
 	return {
 		ts: {
 			$gte: date,
-			$lt: theDayAfter(date),
+			$lt: theDayAfter(today()),
 		},
 		msg: RegExp(searchPattern, 'i'),
 	};
