@@ -86,3 +86,4 @@ import '../app/livechat/server';
 import '../app/authentication/server';
 import '../app/voip/server/startup';
 import '../app/seeking-alpha/terms-of-use-violations';
+import '../app/seeking-alpha/deactivate-idle-accounts';
