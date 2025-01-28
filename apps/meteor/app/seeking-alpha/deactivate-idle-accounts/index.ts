@@ -35,14 +35,17 @@ Meteor.startup(async () => {
 async function perform() {
 	const cutoffDate = nDaysBeforeDate(MAX_IDLE_DAYS, today());
 
-	const numDeactivatableUsers = await Users.col.countDocuments({
-		active: true,
-		createdAt: { $lt: cutoffDate },
-		$or: [
-			{ lastLogin: { $lt: cutoffDate } },
-			{ lastLogin: { $exists: false } },
-		],
-	});
+	const response = await Users.col.updateMany(
+		{
+			active: true,
+			createdAt: { $lt: cutoffDate },
+			$or: [
+				{ lastLogin: { $lt: cutoffDate } },
+				{ lastLogin: { $exists: false } },
+			],
+		},
+		{ $set: { active: false } }
+	);
 
-	await LOG.info(`${numDeactivatableUsers} users can be deactivated!`);
+	await LOG.info(`${response.modifiedCount} users were deactivated!`);
 }
