@@ -60,7 +60,7 @@ export interface IUsersModel extends IBaseModel<IUser> {
 		options?: FindOptions<IUser>,
 		searchFields?: string[],
 		extraQuery?: Filter<IUser>[],
-		extra?: { startsWith?: boolean; endsWith?: boolean },
+		extra?: { startsWith?: boolean; endsWith?: boolean, activeUsersOnly?: boolean },
 	): FindPaginated<FindCursor<WithId<T>>>;
 
 	findPaginatedByActiveLocalUsersExcept<T extends Document = IUser>(

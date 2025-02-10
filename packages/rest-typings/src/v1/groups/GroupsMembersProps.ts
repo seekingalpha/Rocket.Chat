@@ -3,7 +3,7 @@ import type { GroupsBaseProps } from './BaseProps';
 import { withGroupBaseProperties } from './BaseProps';
 import type { PaginatedRequest } from '../../helpers/PaginatedRequest';
 
-export type GroupsMembersProps = PaginatedRequest<GroupsBaseProps & { filter?: string; status?: string[] }>;
+export type GroupsMembersProps = PaginatedRequest<GroupsBaseProps & { filter?: string; status?: string[]; activeUsersOnly?: 'true' | 'false' }>;
 
 const GroupsMembersPropsSchema = withGroupBaseProperties({
 	offset: {
@@ -21,6 +21,10 @@ const GroupsMembersPropsSchema = withGroupBaseProperties({
 	status: {
 		type: 'array',
 		items: { type: 'string' },
+		nullable: true,
+	},
+	activeUsersOnly: {
+		type: 'string',
 		nullable: true,
 	},
 });
