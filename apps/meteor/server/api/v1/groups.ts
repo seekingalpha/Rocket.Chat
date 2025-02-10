@@ -1040,6 +1040,7 @@ const groupsMembersQuery = ajvQuery.compile<{
 	roomName?: string;
 	filter?: string;
 	status?: string[];
+	activeUsersOnly?: string;
 	offset?: number;
 	count?: number;
 	sort?: string;
@@ -1049,6 +1050,7 @@ const groupsMembersQuery = ajvQuery.compile<{
 		roomId: { type: 'string' },
 		roomName: { type: 'string' },
 		filter: { type: 'string' },
+		activeUsersOnly: { type: 'string' },
 		status: { type: 'array', items: { type: 'string' } },
 		offset: { type: 'number' },
 		count: { type: 'number' },
@@ -1120,10 +1122,11 @@ API.v1.get(
 			Match.ObjectIncluding({
 				status: Match.Maybe([String]),
 				filter: Match.Maybe(String),
+				activeUsersOnly: Match.Maybe(String),
 			}),
 		);
 
-		const { status, filter } = this.queryParams;
+		const { status, filter, activeUsersOnly = 'true' } = this.queryParams;
 
 		const hidden = await getUsersHiddenFrom(this.userId);
 
@@ -1134,6 +1137,7 @@ API.v1.get(
 			skip,
 			limit,
 			filter,
+			activeUsersOnly: activeUsersOnly !== 'false',
 			...(sort?.username && { sort: { username: sort.username } }),
 		});
 

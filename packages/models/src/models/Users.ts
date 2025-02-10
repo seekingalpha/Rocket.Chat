@@ -422,7 +422,7 @@ export class UsersRaw extends BaseRaw<IUser, DefaultFields<IUser>> implements IU
 		options?: O,
 		searchFields: string[] = [],
 		extraQuery: Filter<IUser>[] = [],
-		{ startsWith = false, endsWith = false } = {},
+		{ startsWith = false, endsWith = false, activeUsersOnly = true } = {},
 	): FindPaginated<FindCursor<DocumentWithProjection<T, O>>> {
 		if (exceptions == null) {
 			exceptions = [];
@@ -449,7 +449,7 @@ export class UsersRaw extends BaseRaw<IUser, DefaultFields<IUser>> implements IU
 		const query = {
 			$and: [
 				{
-					active: true,
+					...(activeUsersOnly && { active: true }),
 					username: {
 						$exists: true,
 						...(exceptions.length > 0 && { $nin: exceptions }),

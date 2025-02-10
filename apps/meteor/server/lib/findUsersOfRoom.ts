@@ -15,6 +15,7 @@ type FindUsersParam = {
 	limit?: number;
 	filter?: string;
 	sort?: Record<string, any>;
+	activeUsersOnly?: boolean;
 };
 
 export async function findUsersOfRoom({
@@ -25,11 +26,17 @@ export async function findUsersOfRoom({
 	limit = 0,
 	filter = '',
 	sort,
+	activeUsersOnly = true,
 }: FindUsersParam): Promise<FindPaginated<FindCursor<IUser>>> {
 	const hiddenCanAppear = Boolean(hidden?.size) && (!status || (Array.isArray(status) && status.includes(UserStatus.OFFLINE)));
 	const hiddenInRoom =
 		hiddenCanAppear &&
-		(await Users.countDocuments({ __rooms: rid, active: true, username: { $exists: true }, _id: { $in: [...(hidden ?? [])] } })) > 0;
+		(await Users.countDocuments({
+			__rooms: rid,
+			...(activeUsersOnly && { active: true }),
+			username: { $exists: true },
+			_id: { $in: [...(hidden ?? [])] },
+		})) > 0;
 
 	const options: FindOptions<IUser> = {
 		projection: {
@@ -53,8 +60,12 @@ export async function findUsersOfRoom({
 
 	const statusFilter = Array.isArray(status) ? effectiveStatusFilter(status, hidden) : status && excludingOfflineFilter(hidden);
 
-	return Users.findPaginatedByActiveUsersExcept(filter, undefined, options, searchFields, [
-		{ __rooms: rid },
-		...(statusFilter ? [statusFilter] : []),
-	]);
+	return Users.findPaginatedByActiveUsersExcept(
+		filter,
+		undefined,
+		options,
+		searchFields,
+		[{ __rooms: rid }, ...(statusFilter ? [statusFilter] : [])],
+		{ activeUsersOnly },
+	);
 }
