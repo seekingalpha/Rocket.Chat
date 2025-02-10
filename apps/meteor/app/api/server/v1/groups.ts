@@ -721,10 +721,11 @@ API.v1.addRoute(
 				Match.ObjectIncluding({
 					status: Match.Maybe([String]),
 					filter: Match.Maybe(String),
+					activeMembersOnly: Match.Maybe(Boolean),
 				}),
 			);
 
-			const { status, filter } = this.queryParams;
+			const { status, filter, activeMembersOnly = true } = this.queryParams;
 
 			const { cursor, totalCount } = await findUsersOfRoom({
 				rid: findResult.rid,
@@ -732,6 +733,7 @@ API.v1.addRoute(
 				skip,
 				limit,
 				filter,
+				activeMembersOnly,
 				...(sort?.username && { sort: { username: sort.username } }),
 			});
 

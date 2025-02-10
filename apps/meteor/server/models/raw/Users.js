@@ -295,7 +295,7 @@ export class UsersRaw extends BaseRaw {
 		options,
 		searchFields,
 		extraQuery = [],
-		{ startsWith = false, endsWith = false } = {},
+		{ startsWith = false, endsWith = false, activeMembersOnly = true } = {},
 	) {
 		if (exceptions == null) {
 			exceptions = [];
@@ -317,7 +317,7 @@ export class UsersRaw extends BaseRaw {
 		const query = {
 			$and: [
 				{
-					active: true,
+					...(activeMembersOnly && { active: true }),
 					username: {
 						$exists: true,
 						...(exceptions.length > 0 && { $nin: exceptions }),

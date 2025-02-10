@@ -8,7 +8,7 @@ const ajv = new Ajv({
 	coerceTypes: true,
 });
 
-export type GroupsMembersProps = PaginatedRequest<GroupsBaseProps & { filter?: string; status?: string[] }>;
+export type GroupsMembersProps = PaginatedRequest<GroupsBaseProps & { filter?: string; status?: string[]; activeMembersOnly?: 'true' | 'false' | 1 | 0 }>;
 
 const GroupsMembersPropsSchema = withGroupBaseProperties({
 	offset: {
@@ -26,6 +26,10 @@ const GroupsMembersPropsSchema = withGroupBaseProperties({
 	status: {
 		type: 'array',
 		items: { type: 'string' },
+		nullable: true,
+	},
+	activeMembersOnly: {
+		type: 'boolean',
 		nullable: true,
 	},
 });
