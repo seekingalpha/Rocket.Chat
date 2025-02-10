@@ -12,9 +12,10 @@ type FindUsersParam = {
 	limit?: number;
 	filter?: string;
 	sort?: Record<string, any>;
+	activeUsersOnly?: boolean;
 };
 
-export function findUsersOfRoom({ rid, status, skip = 0, limit = 0, filter = '', sort }: FindUsersParam): FindPaginated<FindCursor<IUser>> {
+export function findUsersOfRoom({ rid, status, skip = 0, limit = 0, filter = '', sort, activeUsersOnly = true }: FindUsersParam): FindPaginated<FindCursor<IUser>> {
 	const options: FindOptions<IUser> = {
 		projection: {
 			name: 1,
@@ -40,5 +41,5 @@ export function findUsersOfRoom({ rid, status, skip = 0, limit = 0, filter = '',
 			__rooms: rid,
 			...(status && { status }),
 		},
-	]);
+	], {activeUsersOnly});
 }
