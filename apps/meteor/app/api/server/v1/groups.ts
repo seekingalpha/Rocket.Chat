@@ -718,10 +718,11 @@ API.v1.addRoute(
 				Match.ObjectIncluding({
 					status: Match.Maybe([String]),
 					filter: Match.Maybe(String),
+					activeUsersOnly: Match.Maybe(String), // Ought to be Boolean, but AFAICT GET requests don't support it
 				}),
 			);
 
-			const { status, filter } = this.queryParams;
+			const { status, filter, activeUsersOnly = "true" } = this.queryParams;
 
 			const { cursor, totalCount } = await findUsersOfRoom({
 				rid: findResult.rid,
@@ -729,6 +730,7 @@ API.v1.addRoute(
 				skip,
 				limit,
 				filter,
+				activeUsersOnly: activeUsersOnly !== "false" && activeUsersOnly !== false,
 				...(sort?.username && { sort: { username: sort.username } }),
 			});
 
