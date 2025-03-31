@@ -3,7 +3,7 @@ import { SystemLogger } from '../lib/logger/system';
 
 export function configureSMTP(settings: ICachedSettings): void {
 	settings.watchMultiple(
-		['SMTP_Host', 'SMTP_Port', 'SMTP_Username', 'SMTP_Password', 'SMTP_Protocol', 'SMTP_Pool', 'SMTP_IgnoreTLS'],
+		['SMTP_Host', 'SMTP_Port', 'SMTP_Username', 'SMTP_Password', 'SMTP_Protocol', 'SMTP_Pool', 'SMTP_TLS'],
 		() => {
 			SystemLogger.info('Updating process.env.MAIL_URL');
 
@@ -26,8 +26,15 @@ export function configureSMTP(settings: ICachedSettings): void {
 
 			process.env.MAIL_URL += `?pool=${settings.get('SMTP_Pool')}`;
 
-			if (settings.get('SMTP_Protocol') === 'smtp' && settings.get('SMTP_IgnoreTLS')) {
-				process.env.MAIL_URL += '&secure=false&ignoreTLS=true';
+			if (settings.get('SMTP_Protocol') === 'smtp') {
+				if (settings.get('SMTP_TLS') === 'ignore') {
+					console.log('SMTP TLS IGNORED!');
+					process.env.MAIL_URL += '&secure=false&ignoreTLS=true';
+				}
+				if (settings.get('SMTP_TLS') === 'require') {
+					console.log('SMTP TLS REQUIRED!');
+					process.env.MAIL_URL += '&requireTLS=true';
+				}
 			}
 		},
 	);
