@@ -42,6 +42,19 @@ export const messageSearch = async function (
 		};
 	}
 
+	// Fail-fast on search terms that are still being typed in
+	if (
+		text.length < 3                            // Too short to be meaningful. But support TLAs.
+		|| text.match(/^from?$/i)                  // `from:Username` in-progress.
+		|| text.match(/^from:[a-z0-9.\-_]{0,2}$/i) // Minimum 3 character usernames, lest we get too many hits
+	) {
+		return {
+			message: {
+				docs: [],
+			},
+		};
+	}
+
 	const user = (await Users.findOneById(userId)) || undefined;
 
 	const { query, options } = parseMessageSearchQuery(text, {
