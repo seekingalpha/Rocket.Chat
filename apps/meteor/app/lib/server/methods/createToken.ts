@@ -22,7 +22,7 @@ export async function generateAccessToken(callee: string, userId: string) {
 	}
 
 	const token = Accounts._generateStampedLoginToken();
-	Accounts._insertLoginToken(userId, token);
+	await Accounts._insertLoginToken(userId, token);
 
 	await User.ensureLoginTokensLimit(userId);
 
