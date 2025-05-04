@@ -94,7 +94,7 @@ jobs:
   notify-draft-services:
     if: false
     name: 🚀 Notify external services - draft
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     needs: [release-versions]
     steps:
       - uses: actions/checkout@v4
@@ -138,7 +138,7 @@ jobs:
     if: ${{ ! failure() }}
     name: 📦 Build Packages
     needs: [release-versions, notify-draft-services]
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Github Info
         run: |
@@ -229,7 +229,7 @@ jobs:
     if: false
     name: 📦 Meteor Build - coverage
     needs: [release-versions, packages-build]
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
 
     steps:
       - name: Collect Workflow Telemetry
@@ -260,7 +260,7 @@ jobs:
     if: ${{ ! failure() }}
     name: 📦 Meteor Build - official
     needs: [tests-done, release-versions, packages-build]
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
 
     steps:
       - name: Collect Workflow Telemetry
@@ -337,7 +337,7 @@ jobs:
     if: false
     name: 🚢 Build Docker Images for Testing
     needs: [build, release-versions, build-matrix-rust-bindings-for-alpine]
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
 
     env:
       RC_DOCKERFILE: ${{ needs.release-versions.outputs.rc-dockerfile }}.${{ matrix.platform }}
@@ -383,7 +383,7 @@ jobs:
     if: false
     name: 🚢 Build Docker Images for Production
     needs: [build-prod, release-versions]
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
 
     env:
       RC_DOCKERFILE: ${{ needs.release-versions.outputs.rc-dockerfile }}.${{ matrix.platform }}
@@ -578,7 +578,7 @@ jobs:
   tests-done:
     if: false
     name: ✅ Tests Done
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     needs: [checks, test-unit, test-api, test-ui, test-api-ee, test-ui-ee, test-ui-ee-no-watcher]
     steps:
       - name: Test finish aggregation
@@ -616,7 +616,7 @@ jobs:
   deploy:
     if: ${{ ! failure() }}
     name: 🚀 Copy to S3  # The actual deployment to our servers is done via the "Deploy to EC2" workflow in the sa_devops branch
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     needs: [build-gh-docker, release-versions]
 
     steps:
@@ -665,7 +665,7 @@ jobs:
   docker-image-publish:
     if: false
     name: 🚀 Publish Docker Image (main)
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     needs: [deploy, release-versions]
 
     strategy:
@@ -776,7 +776,7 @@ jobs:
   services-docker-image-publish:
     if: false
     name: 🚀 Publish Docker Image (services)
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     needs: [deploy, release-versions]
 
     strategy:
@@ -866,7 +866,7 @@ jobs:
   notify-services:
     if: false
     name: 🚀 Notify external services
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     needs:
       - services-docker-image-publish
       - docker-image-publish
