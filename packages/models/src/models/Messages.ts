@@ -1037,7 +1037,7 @@ export class MessagesRaw extends BaseRaw<IMessage> implements IMessagesModel {
 				}),
 		};
 
-		return this.countDocuments(query);
+		return this.countDocuments(query, { hint: 'noach__rid_ts_t_tmid__hidden' });
 	}
 
 	async getLastTimestamp(options: FindOptions<IMessage> = { projection: { _id: 0, ts: 1 } }): Promise<Date | undefined> {
