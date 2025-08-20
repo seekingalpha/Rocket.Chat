@@ -12,9 +12,9 @@ declare module '@rocket.chat/ddp-client' {
 }
 
 Meteor.methods<ServerMethods>({
-	loadLocale(locale) {
+	async loadLocale(locale) {
 		check(locale, String);
 
-		return getMomentLocale(locale);
+		return await getMomentLocale(locale);
 	},
 });
