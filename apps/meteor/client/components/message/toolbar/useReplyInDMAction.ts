@@ -38,21 +38,21 @@ export const useReplyInDMAction = (
 
 	const canReplyInDM = useMemo(() => {
 		if (!subscription || room.t === 'd' || room.t === 'l' || isLayoutEmbedded) {
-			return false;
+			console.log(41, false); return false;
 		}
 		if (!!user && user._id !== message.u._id && canCreateDM) {
 			if (!dmRoom || !dmSubs) {
-				return false;
+				console.log(45, false); return false;
 			}
 		}
-		return true;
+		console.log(48, true); return true;
 	}, [canCreateDM, dmRoom, dmSubs, isLayoutEmbedded, message.u._id, room.t, subscription, user]);
 
 	if (!canReplyInDM) {
-		return null;
+		console.log(52, null); return null;
 	}
 
-	return {
+	console.log(55, "menu item data"); return {
 		id: 'reply-directly',
 		icon: 'reply-directly',
 		label: 'Reply_in_direct_message',
