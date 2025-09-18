@@ -40,7 +40,7 @@ export const useReplyInDMAction = (
 		if (!subscription || room.t === 'd' || room.t === 'l' || isLayoutEmbedded) {
 			console.log(41, false); return false;
 		}
-		if (!!user && user._id !== message.u._id && canCreateDM) {
+		if (!!user && user._id !== message.u._id && !canCreateDM) {
 			if (!dmRoom || !dmSubs) {
 				console.log(45, false, !dmRoom, !dmSubs); return false;
 			}
