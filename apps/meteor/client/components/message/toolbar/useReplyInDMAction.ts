@@ -42,7 +42,7 @@ export const useReplyInDMAction = (
 		}
 		if (!!user && user._id !== message.u._id && canCreateDM) {
 			if (!dmRoom || !dmSubs) {
-				console.log(45, false); return false;
+				console.log(45, false, !dmRoom, !dmSubs); return false;
 			}
 		}
 		console.log(48, true); return true;
