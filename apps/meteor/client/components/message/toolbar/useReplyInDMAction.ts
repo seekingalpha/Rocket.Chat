@@ -40,15 +40,15 @@ export const useReplyInDMAction = (
 		if (!subscription || room.t === 'd' || room.t === 'l' || isLayoutEmbedded) {
 			console.log(41, false); return false;
 		}
-		if (shouldFindRoom) {
-			if (!dmRoom || !dmSubs) {
+		console.log(43, shouldFindRoom); if (shouldFindRoom) {
+			console.log(44, dmRoom, dmSubs); if (!dmRoom || !dmSubs) {
 				console.log(45, false, !dmRoom, !dmSubs); return false;
 			}
 		}
 		console.log(48, true); return true;
 	}, [canCreateDM, dmRoom, dmSubs, isLayoutEmbedded, message.u._id, room.t, subscription, user]);
 
-	if (!canReplyInDM) {
+	console.log(51, canReplyInDM); if (!canReplyInDM) {
 		console.log(52, null); return null;
 	}
 
