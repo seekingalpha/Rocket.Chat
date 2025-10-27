@@ -89,7 +89,6 @@ export const LoginForm = ({ setLoginRoute }: LoginFormProps) => {
 	const login = useLoginWithPassword();
 	const showFormLogin = useSetting('Accounts_ShowFormLogin', true);
 
-	const usernameOrEmailPlaceholder = useSetting('Accounts_EmailOrUsernamePlaceholder', '');
 	const passwordPlaceholder = useSetting('Accounts_PasswordPlaceholder', '');
 
 	useDocumentTitle(t('registration.component.login'), false);
@@ -184,7 +183,7 @@ export const LoginForm = ({ setLoginRoute }: LoginFormProps) => {
 										})}
 										autoCapitalize='none'
 										autoCorrect='off'
-										placeholder={usernameOrEmailPlaceholder || t('registration.component.form.emailPlaceholder')}
+										placeholder={t('registration.component.form.emailPlaceholder')}
 										error={errors.usernameOrEmail?.message || (hasAuthError ? errors.password?.message : undefined)}
 										aria-invalid={errors.usernameOrEmail || hasAuthError || errorOnSubmit ? 'true' : 'false'}
 										aria-describedby={`${usernameId}-error`}
