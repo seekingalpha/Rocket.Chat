@@ -91,7 +91,6 @@ export const LoginForm = ({ setLoginRoute }: { setLoginRoute: DispatchLoginRoute
 	const login = useLoginWithPassword();
 	const showFormLogin = useSetting('Accounts_ShowFormLogin', true);
 
-	const usernameOrEmailPlaceholder = useSetting('Accounts_EmailOrUsernamePlaceholder', '');
 	const passwordPlaceholder = useSetting('Accounts_PasswordPlaceholder', '');
 
 	useDocumentTitle(t('registration.component.login'), false);
@@ -184,7 +183,7 @@ export const LoginForm = ({ setLoginRoute }: { setLoginRoute: DispatchLoginRoute
 										{...register('usernameOrEmail', {
 											required: t('Required_field', { field: t('registration.component.form.emailOrUsername') }),
 										})}
-										placeholder={usernameOrEmailPlaceholder || t('registration.component.form.emailPlaceholder')}
+										placeholder={t('registration.component.form.emailPlaceholder')}
 										error={errors.usernameOrEmail?.message || (hasAuthError ? errors.password?.message : undefined)}
 										aria-invalid={errors.usernameOrEmail || hasAuthError || errorOnSubmit ? 'true' : 'false'}
 										aria-describedby={`${usernameId}-error`}
