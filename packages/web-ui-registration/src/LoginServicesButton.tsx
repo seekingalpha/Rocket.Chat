@@ -79,7 +79,7 @@ const LoginServicesButton = <T extends LoginService>({
 			color={buttonLabelColor}
 			backgroundColor={buttonColor}
 		>
-			{buttonLabelText || t('Sign_in_with__provider__', { provider: title })}
+			{t('Sign_in_with__provider__', { provider: (buttonLabelText || title) })}
 		</Button>
 	);
 };
