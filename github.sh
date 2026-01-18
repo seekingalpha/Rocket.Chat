@@ -73,6 +73,10 @@ done
 envsubst "$envsubst_varlist" < install_tarball.sh.tpl    > install_tarball.sh
 envsubst "$envsubst_varlist" < activate_new_build.sh.tpl > activate_new_build.sh
 
+## Update the version marker file
+echo "Mark (in S3) which RC build is now active on $environment..."
+aws s3 cp "s3://$s3_bucket/$rc_tarball" "s3://$s3_bucket/rocket.chat-$environment.tgz" --acl public-read
+hr
 
 ## Install RC tarball (and its dependencies) onto all RC nodes
 echo "Installing new build onto all RC nodes..."
@@ -87,11 +91,6 @@ hr
 ## Flush CDN
 echo "Flushing $environment CDN..."
 curl -X POST -H "Fastly-Key: $fastly_token" "https://api.fastly.com/service/$fastly_service/purge/$environment"
-hr
-
-## Update the version marker file
-echo "Mark (in S3) which RC build is now active on $environment..."
-aws s3 cp "s3://$s3_bucket/$rc_tarball" "s3://$s3_bucket/rocket.chat-$environment.tgz" --acl public-read
 hr
 
 echo Done!
