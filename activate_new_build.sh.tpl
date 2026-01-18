@@ -3,6 +3,11 @@ RC_DIR='$RC_DIR_ENVSUBST'
 
 set -e
 
+main () {
+    update_rc
+    cleanup
+}
+
 # Find Rocket.Chat service names
 find_rocket () {
     find /etc/systemd/system/multi-user.target.wants/ -maxdepth 1 -type l -name 'rocket*' -printf '%f\n'
@@ -60,5 +65,4 @@ cleanup () {
     sudo rm -rf $RC_DIR-old
 }
 
-update_rc
-cleanup
+main
