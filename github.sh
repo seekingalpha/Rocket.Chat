@@ -46,13 +46,15 @@ fastly_service=$(aws ssm get-parameter --name /rocketchat/fastly_service_id --wi
 fastly_token=$(aws ssm get-parameter --name /rocketchat/fastly_api_key --with-decryption --query Parameter.Value --output text)
 
 # Get RC EC2 instance IPs (one per line, as a multiline string, since `parallel-ssh --hosts` expects them in that format)
-rc_instance_ips=$(
+all_rc_ec2_instance_ips=$(
   aws ec2 describe-instances \
       --filters Name=instance-state-name,Values=running \
                 Name=tag:aws:autoscaling:groupName,Values=rocketchat \
       --query "Reservations[*].Instances[*].NetworkInterfaces[0].PrivateIpAddress" \
       --output text
 )
+first_rc_ec2_instance_ip=$(echo "$all_rc_ec2_instance_ips" | head -1)
+other_rc_ec2_instance_ips=$(echo "$all_rc_ec2_instance_ips" | tail -n +2)
 
 
 ## Generate scripts to run on the RC EC2 instances, using the `envsubst` template renderer,
@@ -70,8 +72,9 @@ export S3_BUCKET_ENVSUBST=$s3_bucket
 for dollar__varname__non_final_comma in $(printenv | grep '^\w*_ENVSUBST=' | sed 's/=.*//; s/^/$/; $!s/$/,/') ; do
   envsubst_varlist+=$dollar__varname__non_final_comma
 done
-envsubst "$envsubst_varlist" < install_tarball.sh.tpl    > install_tarball.sh
-envsubst "$envsubst_varlist" < activate_new_build.sh.tpl > activate_new_build.sh
+envsubst "$envsubst_varlist" < install_tarball.sh.tpl              > install_tarball.sh
+envsubst "$envsubst_varlist" < stop_rc_and_enable_new_build.sh.tpl > stop_rc_and_enable_new_build.sh
+envsubst "$envsubst_varlist" < start_rc.sh.tpl                     > start_rc.sh
 
 ## Update the version marker file
 echo "Mark (in S3) which RC build is now active on $environment..."
@@ -80,12 +83,28 @@ hr
 
 ## Install RC tarball (and its dependencies) onto all RC nodes
 echo "Installing new build onto all RC nodes..."
-run_script_on_ec2_instances install_tarball.sh "$rc_instance_ips"
+run_script_on_ec2_instances install_tarball.sh "$all_rc_ec2_instance_ips"
 hr
 
+## Shut down old RC
+# Copy the new build into place so the new version can be started manually if needed.
+echo "Shut down all RC nodes and move the new build into place..."
+run_script_on_ec2_instances stop_rc_and_enable_new_build.sh "$all_rc_ec2_instance_ips"
+hr
+
+
 ## Activate new version
+# Start up only one instance, initially, then the others.
+# When multiple RC instances come online after an upgrade, they all try to run migrations
+# and to add new settings to `db.rocketchat_settings`.  RC seems to have proper locking
+# mechanisms for running migrations – only one instance runs the migrations while the others block –
+# however it does not do so for adding settings – other instances try to add missing settings
+# in a race condition, leading to “duplicate key error” exceptions inserting new records into MongoDB.
+# Avoid this by starting only one instance and after it is online, continue with the others.
 echo "Activating new build on all RC nodes..."
-run_script_on_ec2_instances activate_new_build.sh "$rc_instance_ips"
+echo "First node..."
+run_script_on_ec2_instances start_rc.sh "$first_rc_ec2_instance_ip"
+run_script_on_ec2_instances start_rc.sh "$other_rc_ec2_instance_ips"
 hr
 
 ## Flush CDN
