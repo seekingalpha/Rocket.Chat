@@ -7,6 +7,11 @@ S3_BUCKET='$S3_BUCKET_ENVSUBST'
 
 set -e
 
+main () {
+    prepare_directories
+    build_rc
+}
+
 # Clean old RC dirs and create new
 prepare_directories () {
   echo "Removing previous release's directories..."
@@ -36,5 +41,4 @@ build_rc () {
     rm -rf $tmprcdir
 }
 
-prepare_directories
-build_rc
+main
