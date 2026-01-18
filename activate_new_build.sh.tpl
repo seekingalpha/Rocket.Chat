@@ -8,14 +8,13 @@ main () {
     cleanup
 }
 
-# Find Rocket.Chat service names
-find_rocket () {
-    find /etc/systemd/system/multi-user.target.wants/ -maxdepth 1 -type l -name 'rocket*' -printf '%f\n'
-}
-
-# activate command on Rocket.Chat
-systemctl_rocket () {
-    find_rocket | xargs --no-run-if-empty sudo systemctl "$@"
+# Switch previous version with current
+update_rc () {
+    stop_rc
+    echo "Switching versions..."
+    sudo mv $RC_DIR{,-old}
+    sudo mv $RC_DIR{-new,}
+    start_rocket_and_wait_for_response
 }
 
 stop_rc () {
@@ -30,6 +29,16 @@ stop_rc () {
             sleep 2
         done
     done
+}
+
+# activate command on Rocket.Chat
+systemctl_rocket () {
+    find_rocket | xargs --no-run-if-empty sudo systemctl "$@"
+}
+
+# Find Rocket.Chat service names
+find_rocket () {
+    find /etc/systemd/system/multi-user.target.wants/ -maxdepth 1 -type l -name 'rocket*' -printf '%f\n'
 }
 
 start_rocket_and_wait_for_response () {
@@ -48,15 +57,6 @@ start_rocket_and_wait_for_response () {
         timeout=$((timeout - 2))
         sleep 2
     done
-}
-
-# Switch previous version with current
-update_rc () {
-    stop_rc
-    echo "Switching versions..."
-    sudo mv $RC_DIR{,-old}
-    sudo mv $RC_DIR{-new,}
-    start_rocket_and_wait_for_response
 }
 
 # Delete previous version
