@@ -101,15 +101,17 @@ hr
 # however it does not do so for adding settings – other instances try to add missing settings
 # in a race condition, leading to “duplicate key error” exceptions inserting new records into MongoDB.
 # Avoid this by starting only one instance and after it is online, continue with the others.
-echo "Activating new build on all RC nodes..."
-echo "First node..."
+echo "Activating new build on FIRST RC node..."
 run_script_on_ec2_instances start_rc.sh "$first_rc_ec2_instance_ip"
+hr
+echo "Activating new build on REMAINING RC nodes..."
 run_script_on_ec2_instances start_rc.sh "$other_rc_ec2_instance_ips"
 hr
 
 ## Flush CDN
 echo "Flushing $environment CDN..."
 curl -X POST -H "Fastly-Key: $fastly_token" "https://api.fastly.com/service/$fastly_service/purge/$environment"
+echo
 hr
 
 echo Done!
