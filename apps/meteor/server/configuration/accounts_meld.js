@@ -1,3 +1,4 @@
+import { Logger } from '@rocket.chat/logger';
 import { Users } from '@rocket.chat/models';
 import { Accounts } from 'meteor/accounts-base';
 import _ from 'underscore';
@@ -30,16 +31,34 @@ export async function configureAccounts() {
 					verified: true,
 				};
 
+				const log = new Logger('SeekingAlpha_OAuth_Meld').logger.child({
+					email: serviceData.email,
+					serviceName,
+					serviceData,
+					user,
+				});
+
+				log.warn("OAuth User ID has changed!", { old_id: user.services?.[serviceName]?.id, new_id: serviceData.id });
+
 				if (user.services?.password && !_.findWhere(user.emails, findQuery)) {
+					log.error("RC wants to require password change!");
+					// I am leaving upstream’s call to this function in place so that, by clearing the password,
+					// we won’t call this code repeatedly.  Nonetheless, disable the actual requirePasswordChange.
 					await Users.resetPasswordAndSetRequirePasswordChange(
 						user._id,
-						true,
-						'This_email_has_already_been_used_and_has_not_been_verified__Please_change_your_password',
+						false, // Do NOT require a password change!
+						// Since requirePasswordChange (above) is false,
+						// the following requirePasswordChangeReason should never actually get shown.
+						// We are adding it:
+						// 1) in case it *does* get shown for some reason, we need a sensible value
+						// 2) to record the timestamp of it being added
+						`Contact Customer Support to have an engineer unlock your account (${new Date().toISOString()})`,
 					);
 				}
 
 				await Users.setServiceId(user._id, serviceName, serviceData.id);
-				await Users.setEmailVerified(user._id, serviceData.email);
+				// Don’t mess with the `emails.verified` flag.  Let SAPI manage it.
+				// await Users.setEmailVerified(user._id, serviceData.email);
 			}
 		}
 
