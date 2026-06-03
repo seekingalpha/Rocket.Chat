@@ -40,7 +40,7 @@ jobs:
           echo "  - environment: $environment"
 
       - name: Checkout deploy script branch
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Install dependencies
         run: |
@@ -50,13 +50,13 @@ jobs:
           sudo apt-get install -y gettext      # provides envsubst(1) template renderer
 
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@v6
         with:
           role-to-assume: ${{ vars.AWS_ROLE_TO_ASSUME }}
           aws-region: ${{ vars.AWS_REGION }}
 
       - name: Obtain the SSH private key for logging in to RC EC2 instances
-        uses: webfactory/ssh-agent@v0.9.0
+        uses: webfactory/ssh-agent@v0.10.0
         with:
           ssh-private-key: '${{ secrets.CI_SSH_PRIVATE_KEY }}'
 
