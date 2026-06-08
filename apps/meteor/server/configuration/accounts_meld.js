@@ -26,22 +26,25 @@ export async function configureAccounts() {
 		if (serviceData.email) {
 			const user = await Users.findOneByEmailAddress(serviceData.email);
 			if (user != null && user.services?.[serviceName]?.id !== serviceData.id) {
-				const findQuery = {
-					address: serviceData.email,
-					verified: true,
-				};
-
-				const log = new Logger('SeekingAlpha_OAuth_Meld').logger.child({
+				const LOG = new Logger('SeekingAlpha_OAuth_Meld').logger.child({
 					email: serviceData.email,
 					serviceName,
 					serviceData,
 					user,
 				});
 
-				log.warn("OAuth User ID has changed!", { old_id: user.services?.[serviceName]?.id, new_id: serviceData.id });
+				LOG.warn(
+					{ oauth_user_id_OLD: user.services?.[serviceName]?.id, oauth_user_id_NEW: serviceData.id },
+					"OAuth User ID has changed!",
+				);
+
+				const findQuery = {
+					address: serviceData.email,
+					verified: true,
+				};
 
 				if (user.services?.password && !_.findWhere(user.emails, findQuery)) {
-					log.error("RC wants to require password change!");
+					LOG.error("RC wants to require password change!");
 					// I am leaving upstream’s call to this function in place so that, by clearing the password,
 					// we won’t call this code repeatedly.  Nonetheless, disable the actual requirePasswordChange.
 					await Users.resetPasswordAndSetRequirePasswordChange(
