@@ -76,6 +76,10 @@ Meteor.methods<ServerMethods>({
 		if (!room) {
 			throw new Meteor.Error('error-invalid-room', 'Invalid room', {
 				method: 'getRoomByTypeAndName',
+				type,
+				name,
+				roomFind: Boolean(roomFind),
+				username: user?.username,
 			});
 		}
 
