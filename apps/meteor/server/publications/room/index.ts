@@ -54,6 +54,10 @@ Meteor.methods<ServerMethods>({
 		if (!type || !name) {
 			throw new Meteor.Error('error-invalid-room', 'Invalid room', {
 				method: 'getRoomByTypeAndName',
+				type,
+				name,
+				roomFind: "Not there yet!",
+				username: "Not there yet!",
 			});
 		}
 
@@ -65,6 +69,10 @@ Meteor.methods<ServerMethods>({
 			if (!allowAnon || type !== 'c') {
 				throw new Meteor.Error('error-invalid-user', 'Invalid user', {
 					method: 'getRoomByTypeAndName',
+					type,
+					name,
+					roomFind: "Not there yet!",
+					username: user?.username,
 				});
 			}
 		}
@@ -76,6 +84,10 @@ Meteor.methods<ServerMethods>({
 		if (!room) {
 			throw new Meteor.Error('error-invalid-room', 'Invalid room', {
 				method: 'getRoomByTypeAndName',
+				type,
+				name,
+				roomFind: Boolean(roomFind),
+				username: user?.username,
 			});
 		}
 
@@ -87,6 +99,10 @@ Meteor.methods<ServerMethods>({
 		) {
 			throw new Meteor.Error('error-no-permission', 'No permission', {
 				method: 'getRoomByTypeAndName',
+				type,
+				name,
+				roomFind: Boolean(roomFind),
+				username: user?.username,
 			});
 		}
 
