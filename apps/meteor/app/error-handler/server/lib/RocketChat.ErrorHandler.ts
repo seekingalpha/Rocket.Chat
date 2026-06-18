@@ -1,5 +1,6 @@
 import { Settings, Users, Rooms } from '@rocket.chat/models';
 import { Meteor } from 'meteor/meteor';
+import { inspect } from 'node:util';
 
 import { throttledCounter } from '../../../../lib/utils/throttledCounter';
 import { sendMessage } from '../../../lib/server/functions/sendMessage';
@@ -39,7 +40,7 @@ class ErrorHandler {
 		return room._id;
 	}
 
-	async trackError(message: string, stack?: string): Promise<void> {
+	async trackError(message: string, stack?: string, args?: Array<any>): Promise<void> {
 		if (!this.reporting || !this.rid || this.lastError === message) {
 			return;
 		}
@@ -48,6 +49,10 @@ class ErrorHandler {
 
 		if (stack) {
 			message = `${message}\n\`\`\`\n${stack}\n\`\`\``;
+		}
+
+		if (args?.length) {
+			message = `${message}\n\`\`\`\n${inspect(args, {depth: 4})}\n\`\`\``;
 		}
 
 		await sendMessage(user, { msg: message }, { _id: this.rid });
@@ -75,7 +80,7 @@ Meteor._debug = function (message, stack, ...args) {
 	if (!errorHandler.reporting) {
 		return originalMeteorDebug.call(this, message, stack);
 	}
-	void errorHandler.trackError(message, stack);
+	void errorHandler.trackError(message, stack, args);
 	return originalMeteorDebug.apply(this, [message, stack, ...args]);
 };
 

@@ -652,7 +652,19 @@ API.v1.post(
 			}
 
 			if (settings.get('Log_Level') === '2') {
-				Meteor._debug(`Exception while invoking method ${method}`, err);
+				Meteor._debug(
+					`Exception while invoking method ${method}`,
+					err,
+					{
+						method,
+						params,
+						userId: this.userId,
+						userName: this.user?.username,
+						userAgent: this.request?.headers?.get('user-agent'),
+						referer: this.request?.headers?.get('referer'),
+						err,
+					},
+				);
 			}
 
 			return API.v1.failure(mountResult({ id, error: err }));
@@ -713,7 +725,19 @@ API.v1.post(
 				SystemLogger.error({ msg: 'Exception while invoking method', err, method });
 			}
 			if (settings.get('Log_Level') === '2') {
-				Meteor._debug(`Exception while invoking method ${method}`, err);
+				Meteor._debug(
+					`Exception while invoking method ${method} (ANON!)`,
+					err,
+					{
+						method,
+						params,
+						userId: this.userId,
+						userName: this.user?.username,
+						userAgent: this.request?.headers?.get('user-agent'),
+						referer: this.request?.headers?.get('referer'),
+						err,
+					},
+				);
 			}
 			return API.v1.failure(mountResult({ id, error: err }));
 		}
