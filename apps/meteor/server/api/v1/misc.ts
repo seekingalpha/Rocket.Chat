@@ -672,7 +672,7 @@ API.v1.post(
 
 			return API.v1.success(mountResult({ id, result: await Meteor.callAsync(method, ...params) }));
 		} catch (err) {
-			logMethodCallError(method, err);
+			logMethodCallError(method, err, this);
 
 			return API.v1.failure(mountResult({ id, error: err }));
 		}
@@ -728,7 +728,7 @@ API.v1.post(
 
 			return API.v1.success(mountResult({ id, result: await Meteor.callAsync(method, ...params) }));
 		} catch (err) {
-			logMethodCallError(method, err);
+			logMethodCallError(method, err, this);
 
 			return API.v1.failure(mountResult({ id, error: err }));
 		}
