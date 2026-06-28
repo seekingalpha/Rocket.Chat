@@ -119,9 +119,10 @@ export const canAccessRoom: RoomAccessValidator = async (room, user, extraData):
 	// if user only contains _id, convert it to a full IUser object
 
 	if (isPartialUser(user)) {
+		const userId = user._id;
 		user = (await Users.findOneById(user._id)) || undefined;
 		if (!user) {
-			throw new Error('User not found');
+			throw new Error(`User not found: userId="${userId}"`);
 		}
 
 		if (process.env.NODE_ENV === 'development') {
