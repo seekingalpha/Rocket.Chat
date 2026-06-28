@@ -36,6 +36,12 @@ Meteor.methods<ServerMethods>({
 		if (!fromUser && settings.get('Accounts_AllowAnonymousRead') === false) {
 			throw new Meteor.Error('error-invalid-user', 'Invalid user', {
 				method: 'loadHistory',
+				rid,
+				end,
+				limit,
+				ls,
+				showThreadMessages,
+				fromUser,
 			});
 		}
 
