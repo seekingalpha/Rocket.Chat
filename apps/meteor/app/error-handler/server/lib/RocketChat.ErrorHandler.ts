@@ -41,7 +41,7 @@ class ErrorHandler {
 	}
 
 	async trackError(message: string, stack?: string, args?: Array<any>): Promise<void> {
-		if (!this.reporting || !this.rid || this.lastError === message) {
+		if (!this.reporting || !this.rid) {
 			return;
 		}
 		this.lastError = message;
