@@ -23,6 +23,7 @@ export function logMethodCallError(method: string, err: unknown, apiActionContex
 				userId: apiActionContext.userId,
 				userName: apiActionContext.user?.username,
 				userAgent: apiActionContext.request?.headers?.get('user-agent'),
+				requestedWith: apiActionContext.request?.headers?.get('X-Requested-With'),
 				referer: apiActionContext.request?.headers?.get('referer'),
 				err,
 				apiActionContext,

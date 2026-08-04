@@ -272,7 +272,7 @@ export class RocketchatSdkLegacyImpl extends DDPSDK implements RocketchatSDKLega
 					'X-Auth-Token': account.user?.token,
 				};
 			}
-		})({ baseUrl: url });
+		})({ baseUrl: url, headers: { "X-Requested-With": "sa_patch RocketchatSDKLegacy" } });
 
 		const sdk = new RocketchatSdkLegacyImpl(connection, stream, account, timeoutControl, rest);
 

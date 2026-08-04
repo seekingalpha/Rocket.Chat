@@ -365,7 +365,7 @@ export class LivechatClientImpl extends DDPSDK implements LivechatStream, Livech
 
 		const timeoutControl = TimeoutControl.create(ddp, connection);
 
-		const rest = new RestClient({ baseUrl: url.replace(/^ws/, 'http') });
+		const rest = new RestClient({ baseUrl: url.replace(/^ws/, 'http'), headers: { "X-Requested-With": "sa_patch LivechatClient" } });
 
 		const sdk = new LivechatClientImpl(connection, stream, account, timeoutControl, rest);
 
