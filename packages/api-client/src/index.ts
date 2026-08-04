@@ -66,7 +66,7 @@ export class RestClient implements RestClientInterface {
 	constructor({ baseUrl, credentials, headers = {} }: { baseUrl: string; credentials?: Credentials; headers?: Record<string, string> }) {
 		this.baseUrl = `${baseUrl}/api`;
 		this.setCredentials(credentials);
-		this.headers = headers;
+		this.headers = { "X-Requested-With": "sa_patch default RestClient", ...headers };
 	}
 
 	getCredentials(): ReturnType<RestClientInterface['getCredentials']> {

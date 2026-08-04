@@ -108,7 +108,8 @@ export class DDPSDK implements SDK {
 					'X-Auth-Token': account.user.token,
 				};
 			}
-		})({ baseUrl: url });
+		})({ baseUrl: url, headers: { "X-Requested-With": "sa_patch DDPSDK" } });
+
 
 		const sdk = new DDPSDK(connection, stream, account, timeoutControl, rest);
 

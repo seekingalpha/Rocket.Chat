@@ -29,6 +29,7 @@ class RestApiClient extends RestClient {
 
 export const APIClient = new RestApiClient({
 	baseUrl: baseURI.replace(/\/$/, ''),
+	headers: { "X-Requested-With": "sa_patch APIClient" },
 });
 
 APIClient.handleTwoFactorChallenge(invokeTwoFactorModal);
