@@ -29,19 +29,6 @@ Meteor.methods<ServerMethods>({
 	async loadSurroundingMessages(message, limit = 50, showThreadMessages = true) {
 		check(message, Object);
 		check(limit, Number);
-		if (typeof showThreadMessages !== "boolean") {
-			throw new Meteor.Error(
-				'error-invalid-param',
-				`Expected showThreadMessages to be a boolean, got ${typeof showThreadMessages}`,
-				{
-					method: "loadSurroundingMessages",
-					showThreadMessages,
-					userId: Meteor.userId(),
-					limit,
-					message,
-				},
-			);
-		}
 		check(showThreadMessages, Boolean);
 
 		if (!Meteor.userId()) {
