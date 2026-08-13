@@ -32,19 +32,6 @@ Meteor.methods<ServerMethods>({
 		methodDeprecationLogger.method('loadSurroundingMessages', '9.0.0', '/v1/rooms.history');
 		check(message, Object);
 		check(limit, Number);
-		if (typeof showThreadMessages !== "boolean") {
-			throw new Meteor.Error(
-				'error-invalid-param',
-				`Expected showThreadMessages to be a boolean, got ${typeof showThreadMessages}`,
-				{
-					method: "loadSurroundingMessages",
-					showThreadMessages,
-					userId: Meteor.userId(),
-					limit,
-					message,
-				},
-			);
-		}
 		check(showThreadMessages, Boolean);
 
 		const fromId = Meteor.userId() ?? undefined;
