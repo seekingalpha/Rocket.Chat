@@ -69,14 +69,7 @@ const AuthenticationProvider = ({ children }: AuthenticationProviderProps): Reac
 							cache: "no-cache",
 						},
 					)
-					.then(async (response) => {
-						try {
-							return await response.json();
-						} catch {
-							console.log(`Login via SAPI: Response was non-JSON.  HTTP Status ${response.status} ${response.statusText}`);
-							throw new Error(response.status === 429 ? 'Too many login attempts' : 'Server error');
-						}
-					})
+					.then((response) => response.json())
 					.then((data) => {
 						if (data.error) {
 							console.log(`Login via SAPI: Error: ${data.error}`);
@@ -92,8 +85,7 @@ const AuthenticationProvider = ({ children }: AuthenticationProviderProps): Reac
 								}
 							});
 						}
-					})
-					.catch(reject);
+					});
 				}),
 			/* eslint-enable prettier/prettier */
 			loginWithService: <T extends LoginServiceConfiguration>(serviceConfig: T): (() => Promise<true>) => {
