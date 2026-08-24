@@ -32,6 +32,7 @@ module.exports = {
 		'app/statistics/server/**/*.spec.ts',
 		'app/livechat/server/lib/**/*.spec.ts',
 		'app/push/server/**/*.spec.ts',
+		'app/seeking-alpha/**/*.spec.ts',
 		'app/utils/server/**/*.spec.ts',
 	],
 };
