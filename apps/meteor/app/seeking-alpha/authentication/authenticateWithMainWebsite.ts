@@ -8,6 +8,8 @@ type MainWebsiteAuthenticationResponse = {
 	rc_token?: unknown;
 };
 
+export type MainWebsiteLoginIdentifier = { email: string } | { username: string };
+
 export type MainWebsiteAuthenticationErrorKind = 'invalid-credentials' | 'rate-limited' | 'service-unavailable';
 
 export class MainWebsiteAuthenticationError extends Error {
@@ -58,11 +60,11 @@ export const getMainWebsiteAuthenticationUrl = ({
 
 export const authenticateWithMainWebsite = async (
 	url: string,
-	email: string,
+	identifier: MainWebsiteLoginIdentifier,
 	password: string,
 	request: typeof serverFetch = serverFetch,
 ): Promise<string> => {
-	const body = new URLSearchParams({ email, password });
+	const body = new URLSearchParams({ ...identifier, password });
 	const speakeasyHeaderName = process.env.SPEAKEASY_HTTP_HEADER_NAME;
 	const speakeasyHeaderValue = process.env.SPEAKEASY_HTTP_HEADER_VALUE;
 

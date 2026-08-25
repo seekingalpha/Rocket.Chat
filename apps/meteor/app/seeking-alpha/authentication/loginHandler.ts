@@ -6,6 +6,7 @@ import {
 	authenticateWithMainWebsite,
 	getMainWebsiteAuthenticationUrl,
 	MainWebsiteAuthenticationError,
+	type MainWebsiteLoginIdentifier,
 } from './authenticateWithMainWebsite';
 
 type PasswordLoginRequest = {
@@ -31,12 +32,16 @@ const getPasswordLoginRequest = (options: Record<string, any>): PasswordLoginReq
 	return undefined;
 };
 
-const getEmail = ({ user }: PasswordLoginRequest): string => {
+const getMainWebsiteLoginIdentifier = ({ user }: PasswordLoginRequest): MainWebsiteLoginIdentifier => {
 	if (typeof user === 'string') {
-		return user;
+		return user.includes('@') ? { email: user } : { username: user };
 	}
 
-	return user.email ?? user.username ?? '';
+	if (user.email !== undefined) {
+		return { email: user.email };
+	}
+
+	return { username: user.username ?? '' };
 };
 
 const toLoginError = (error: unknown): Meteor.Error => {
@@ -76,7 +81,11 @@ Accounts._runLoginHandlers = async function (methodInvocation, options) {
 			};
 		}
 
-		const resumeToken = await authenticateWithMainWebsite(authenticationUrl, getEmail(loginRequest), loginRequest.password);
+		const resumeToken = await authenticateWithMainWebsite(
+			authenticationUrl,
+			getMainWebsiteLoginIdentifier(loginRequest),
+			loginRequest.password,
+		);
 
 		// Let Meteor's built-in resume handler validate the token, find the Rocket.Chat user,
 		// and return the stamped token expected by Accounts._attemptLogin. Keep the outer

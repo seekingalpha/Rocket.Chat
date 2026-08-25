@@ -54,9 +54,28 @@ describe('Seeking Alpha password login handler', () => {
 		});
 
 		expect(result).to.deep.equal({ type: 'password', userId: 'user-id' });
-		expect(authenticateWithMainWebsite.calledOnceWithExactly('https://example.com/login', 'user@example.com', 'plaintext-password')).to.be
-			.true;
+		expect(
+			authenticateWithMainWebsite.calledOnceWithExactly('https://example.com/login', { email: 'user@example.com' }, 'plaintext-password'),
+		).to.be.true;
 		expect(originalRunLoginHandlers.calledOnceWithExactly(invocation, { resume: 'resume-token' })).to.be.true;
+	});
+
+	it('identifies a username login with the username parameter', async () => {
+		const { Accounts, authenticateWithMainWebsite, originalRunLoginHandlers } = loadLoginHandler();
+
+		authenticateWithMainWebsite.resolves('resume-token');
+		originalRunLoginHandlers.resolves({ type: 'resume', userId: 'user-id' });
+
+		await Accounts._runLoginHandlers(
+			{},
+			{
+				user: { username: 'some-user' },
+				password: 'plaintext-password',
+			},
+		);
+
+		expect(authenticateWithMainWebsite.calledOnceWithExactly('https://example.com/login', { username: 'some-user' }, 'plaintext-password'))
+			.to.be.true;
 	});
 
 	it('rejects hashed password requests instead of falling back to the local password database', async () => {

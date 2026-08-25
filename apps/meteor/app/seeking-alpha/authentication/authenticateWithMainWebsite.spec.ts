@@ -53,7 +53,7 @@ describe('Seeking Alpha main website authentication', () => {
 
 		const result = await authenticateWithMainWebsite(
 			'https://seekingalpha.com/authentication/rocketchat_email_password_login',
-			'user@example.com',
+			{ email: 'user@example.com' },
 			'plain password',
 			request,
 		);
@@ -63,12 +63,29 @@ describe('Seeking Alpha main website authentication', () => {
 
 		const [url, options] = request.firstCall.args;
 		expect(url).to.equal('https://seekingalpha.com/authentication/rocketchat_email_password_login');
-		expect(new URLSearchParams(options.body).get('email')).to.equal('user@example.com');
-		expect(new URLSearchParams(options.body).get('password')).to.equal('plain password');
+		const body = new URLSearchParams(options.body);
+		expect(body.get('email')).to.equal('user@example.com');
+		expect(body.has('username')).to.be.false;
+		expect(body.get('password')).to.equal('plain password');
 		expect(options.headers).to.include({
 			'Content-Type': 'application/x-www-form-urlencoded',
 			'X-Speakeasy': 'secret',
 		});
+	});
+
+	it('posts username instead of email when the user logs in by username', async () => {
+		const request = sinon.stub().resolves({
+			ok: true,
+			status: 200,
+			json: sinon.stub().resolves({ rc_token: 'resume-token' }),
+		});
+
+		await authenticateWithMainWebsite('https://example.com/login', { username: 'some-user' }, 'password', request);
+
+		const body = new URLSearchParams(request.firstCall.args[1].body);
+		expect(body.get('username')).to.equal('some-user');
+		expect(body.has('email')).to.be.false;
+		expect(body.get('password')).to.equal('password');
 	});
 
 	it('classifies an error response as invalid credentials', async () => {
@@ -79,7 +96,7 @@ describe('Seeking Alpha main website authentication', () => {
 		});
 
 		try {
-			await authenticateWithMainWebsite('https://example.com/login', 'user@example.com', 'password', request);
+			await authenticateWithMainWebsite('https://example.com/login', { email: 'user@example.com' }, 'password', request);
 			expect.fail('Expected authentication to fail');
 		} catch (error) {
 			expect(error).to.be.instanceOf(MainWebsiteAuthenticationError);
@@ -95,7 +112,7 @@ describe('Seeking Alpha main website authentication', () => {
 		});
 
 		try {
-			await authenticateWithMainWebsite('https://example.com/login', 'user@example.com', 'password', request);
+			await authenticateWithMainWebsite('https://example.com/login', { email: 'user@example.com' }, 'password', request);
 			expect.fail('Expected authentication to fail');
 		} catch (error) {
 			expect(error).to.be.instanceOf(MainWebsiteAuthenticationError);
@@ -111,7 +128,7 @@ describe('Seeking Alpha main website authentication', () => {
 		});
 
 		try {
-			await authenticateWithMainWebsite('https://example.com/login', 'user@example.com', 'password', request);
+			await authenticateWithMainWebsite('https://example.com/login', { email: 'user@example.com' }, 'password', request);
 			expect.fail('Expected authentication to fail');
 		} catch (error) {
 			expect(error).to.be.instanceOf(MainWebsiteAuthenticationError);
@@ -127,7 +144,7 @@ describe('Seeking Alpha main website authentication', () => {
 		});
 
 		try {
-			await authenticateWithMainWebsite('https://example.com/login', 'user@example.com', 'password', request);
+			await authenticateWithMainWebsite('https://example.com/login', { email: 'user@example.com' }, 'password', request);
 			expect.fail('Expected authentication to fail');
 		} catch (error) {
 			expect(error).to.be.instanceOf(MainWebsiteAuthenticationError);
