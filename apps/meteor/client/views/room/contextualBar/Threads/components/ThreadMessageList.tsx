@@ -16,6 +16,7 @@ import { useJumpToMessageImperative } from '../../../MessageList/hooks/useJumpTo
 import { isMessageNewDay } from '../../../MessageList/lib/isMessageNewDay';
 import MessageListProvider from '../../../MessageList/providers/MessageListProvider';
 import LoadingMessagesIndicator from '../../../body/LoadingMessagesIndicator';
+import { useRoomSubscription } from '../../../contexts/RoomContext';
 import { useDateScroll } from '../../../hooks/useDateScroll';
 import { useFirstUnreadMessageId } from '../../../hooks/useFirstUnreadMessageId';
 import { useMessageListNavigation } from '../../../hooks/useMessageListNavigation';
@@ -66,6 +67,7 @@ const ThreadMessageList = ({ mainMessage }: ThreadMessageListProps): ReactElemen
 	const showUserAvatar = !!useUserPreference<boolean>('displayAvatars');
 	const firstUnreadMessageId = useFirstUnreadMessageId();
 	const messageGroupingPeriod = useSetting('Message_GroupingPeriod', 300);
+	const subscription = useRoomSubscription();
 
 	const { messageListRef } = useMessageListNavigation();
 
@@ -106,6 +108,7 @@ const ThreadMessageList = ({ mainMessage }: ThreadMessageListProps): ReactElemen
 											showUserAvatar={showUserAvatar}
 											firstUnread={firstUnread}
 											system={system}
+											ignoredUser={subscription?.ignored?.includes(message.u._id) ?? false}
 										/>
 									</Fragment>
 								);

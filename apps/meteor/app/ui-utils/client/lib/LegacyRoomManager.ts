@@ -10,7 +10,7 @@ import { roomCoordinator } from '../../../../client/lib/rooms/roomCoordinator';
 import { fireGlobalEvent } from '../../../../client/lib/utils/fireGlobalEvent';
 import { getConfig } from '../../../../client/lib/utils/getConfig';
 import { modifyMessageOnFilesDelete } from '../../../../client/lib/utils/modifyMessageOnFilesDelete';
-import { Messages, Subscriptions } from '../../../../client/stores';
+import { Messages } from '../../../../client/stores';
 import { sdk } from '../../../utils/client/lib/SDKClient';
 
 const maxRoomsOpen = parseInt(getConfig('maxRoomsOpen') ?? '5') || 5;
@@ -175,7 +175,6 @@ const openRoom = (typeName: string, record: OpenedRoom) => {
 				// }
 				// Do not load command messages into channel
 				if (msg.t !== 'command') {
-					const subscription = Subscriptions.state.find(({ rid }) => rid === record.rid);
 					const isNew = !Messages.state.find((record) => record._id === msg._id && record.temp !== true);
 
 					// Measure and log message receive delay for messages
@@ -188,7 +187,7 @@ const openRoom = (typeName: string, record: OpenedRoom) => {
 						}
 					}
 
-					await upsertMessage({ msg, subscription });
+					await upsertMessage({ msg });
 					if (isNew) {
 						await clientCallbacks.run('streamNewMessage', msg);
 					}

@@ -17,19 +17,4 @@ Meteor.startup(() => {
 			return Messages.state.store(msg);
 		});
 	});
-
-	onLoggedIn(() => {
-		return sdk.stream('notify-user', [`${getUserId()}/subscriptions-changed`], (_action, sub) => {
-			Messages.state.update(
-				(record) => record.rid === sub.rid && ('ignored' in sub && sub.ignored ? !sub.ignored.includes(record.u._id) : 'ignored' in record),
-				({ ignored: _, ...record }) => record,
-			);
-			if ('ignored' in sub && sub.ignored) {
-				Messages.state.update(
-					(record) => record.rid === sub.rid && record.t !== 'command' && (sub.ignored?.includes(record.u._id) ?? false),
-					(record) => ({ ...record, ignored: true }),
-				);
-			}
-		});
-	});
 });

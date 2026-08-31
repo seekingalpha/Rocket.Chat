@@ -8,7 +8,6 @@ export const Messages =
 	createGlobalStore(
 		createDocumentMapStore<
 			IMessage & {
-				ignored?: boolean;
 				autoTranslateFetching?: boolean;
 				autoTranslateShowInverse?: boolean;
 				temp?: boolean;

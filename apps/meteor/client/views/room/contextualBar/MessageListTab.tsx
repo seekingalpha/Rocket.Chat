@@ -82,6 +82,7 @@ const MessageListTab = ({ iconName, title, emptyResultMessage, context, queryRes
 													const unread = subscription?.tunread?.includes(message._id) ?? false;
 													const mention = subscription?.tunreadUser?.includes(message._id) ?? false;
 													const all = subscription?.tunreadGroup?.includes(message._id) ?? false;
+													const ignoredUser = subscription?.ignored?.includes(message.u._id) ?? false;
 
 													return (
 														<>
@@ -96,6 +97,7 @@ const MessageListTab = ({ iconName, title, emptyResultMessage, context, queryRes
 																	unread={unread}
 																	mention={mention}
 																	all={all}
+																	ignoredUser={ignoredUser}
 																	context={context}
 																	showUserAvatar={showUserAvatar}
 																/>
