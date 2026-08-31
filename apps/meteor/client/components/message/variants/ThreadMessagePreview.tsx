@@ -1,4 +1,4 @@
-import type { IThreadMessage } from '@rocket.chat/core-typings';
+import type { ISubscription, IThreadMessage } from '@rocket.chat/core-typings';
 import {
 	Skeleton,
 	ThreadMessage,
@@ -36,9 +36,10 @@ type ThreadMessagePreviewProps = {
 	message: IThreadMessage;
 	showUserAvatar: boolean;
 	sequential: boolean;
+	ignoredUsers?: ISubscription['ignored'];
 } & ComponentProps<typeof ThreadMessage>;
 
-const ThreadMessagePreview = ({ message, showUserAvatar, sequential, ...props }: ThreadMessagePreviewProps): ReactElement => {
+const ThreadMessagePreview = ({ message, showUserAvatar, sequential, ignoredUsers, ...props }: ThreadMessagePreviewProps): ReactElement => {
 	const parentMessage = useParentMessage(message.tmid);
 
 	const translated = useShowTranslated(message);
@@ -88,7 +89,7 @@ const ThreadMessagePreview = ({ message, showUserAvatar, sequential, ...props }:
 						<ThreadMessageOrigin system={!!messageType}>
 							{parentMessage.isSuccess && !messageType && (
 								<>
-									{(parentMessage.data as { ignored?: boolean })?.ignored ? (
+									{parentMessage.data?.u._id && ignoredUsers?.includes(parentMessage.data.u._id) ? (
 										t('Message_Ignored')
 									) : (
 										<ThreadMessagePreviewBody message={{ ...parentMessage.data, ...previewMessage }} />
@@ -121,7 +122,7 @@ const ThreadMessagePreview = ({ message, showUserAvatar, sequential, ...props }:
 				</ThreadMessageLeftContainer>
 				<ThreadMessageContainer>
 					<ThreadMessageBody>
-						{(message as { ignored?: boolean }).ignored ? (
+						{ignoredUsers?.includes(message.u._id) ? (
 							t('Message_Ignored')
 						) : (
 							<>

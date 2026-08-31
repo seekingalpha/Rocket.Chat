@@ -87,6 +87,7 @@ export const MessageListItem = ({
 						sequential={shouldShowAsSequential}
 						message={message}
 						showUserAvatar={showUserAvatar}
+						ignoredUsers={subscription?.ignored}
 					/>
 				</li>
 			)}

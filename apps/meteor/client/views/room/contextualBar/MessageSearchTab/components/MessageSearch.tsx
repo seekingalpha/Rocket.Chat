@@ -55,6 +55,7 @@ const MessageSearch = ({ searchText, globalSearch }: MessageSearchProps): ReactE
 												const unread = subscription?.tunread?.includes(message._id) ?? false;
 												const mention = subscription?.tunreadUser?.includes(message._id) ?? false;
 												const all = subscription?.tunreadGroup?.includes(message._id) ?? false;
+												const ignoredUser = subscription?.ignored?.includes(message.u._id) ?? false;
 
 												return (
 													<Fragment key={message._id}>
@@ -69,6 +70,7 @@ const MessageSearch = ({ searchText, globalSearch }: MessageSearchProps): ReactE
 																unread={unread}
 																mention={mention}
 																all={all}
+																ignoredUser={ignoredUser}
 																context='search'
 																searchText={searchText}
 																showUserAvatar={showUserAvatar}

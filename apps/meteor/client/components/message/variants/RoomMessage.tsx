@@ -1,6 +1,5 @@
 import type { IMessage } from '@rocket.chat/core-typings';
 import { Message, MessageLeftContainer, MessageContainer, CheckBox } from '@rocket.chat/fuselage';
-import { useToggle } from '@rocket.chat/fuselage-hooks';
 import { MessageAvatar } from '@rocket.chat/ui-avatar';
 import { useTranslation, useUserId, useUserCard } from '@rocket.chat/ui-contexts';
 import type { ComponentProps, ReactElement } from 'react';
@@ -17,6 +16,7 @@ import {
 import { useJumpToMessage } from '../../../views/room/MessageList/hooks/useJumpToMessage';
 import Emoji from '../../Emoji';
 import IgnoredContent from '../IgnoredContent';
+import { useIgnoredMessage } from '../hooks/useIgnoredMessage';
 import MessageHeader from '../MessageHeader';
 import MessageToolbarHolder from '../MessageToolbarHolder';
 import StatusIndicators from '../StatusIndicators';
@@ -24,14 +24,14 @@ import RoomMessageContent from './room/RoomMessageContent';
 import { useMessageListReadReceipts } from '../list/MessageListContext';
 
 type RoomMessageProps = {
-	message: IMessage & { ignored?: boolean };
+	message: IMessage;
 	showUserAvatar: boolean;
 	sequential: boolean;
 	unread: boolean;
 	mention: boolean;
 	all: boolean;
 	context?: MessageActionContext;
-	ignoredUser?: boolean;
+	ignoredUser: boolean;
 	searchText?: string;
 } & ComponentProps<typeof Message>;
 
@@ -74,8 +74,7 @@ const RoomMessage = ({
 	const t = useTranslation();
 	const uid = useUserId();
 	const editing = useIsMessageHighlight(message._id);
-	const [displayIgnoredMessage, toggleDisplayIgnoredMessage] = useToggle(false);
-	const ignored = (ignoredUser || message.ignored) && !displayIgnoredMessage;
+	const [ignored, revealIgnoredMessage] = useIgnoredMessage(ignoredUser);
 	const { openUserCard, triggerProps } = useUserCard();
 
 	const selecting = useIsSelecting();
@@ -128,7 +127,7 @@ const RoomMessage = ({
 			<MessageContainer>
 				{!sequential && <MessageHeader message={message} />}
 				{ignored ? (
-					<IgnoredContent messageId={message._id} onShowMessageIgnored={toggleDisplayIgnoredMessage} />
+					<IgnoredContent messageId={message._id} onShowMessageIgnored={revealIgnoredMessage} />
 				) : (
 					<RoomMessageContent message={message} unread={unread} mention={mention} all={all} searchText={searchText} />
 				)}

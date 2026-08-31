@@ -87,27 +87,6 @@ it('should show fallback content for ignored user', () => {
 	expect(screen.getByRole('button', { name: 'Message_Ignored' })).toBeInTheDocument();
 });
 
-it('should show ignored message', () => {
-	render(
-		<RoomMessage
-			message={{ ...message, ignored: true }}
-			sequential={false}
-			all={false}
-			mention={false}
-			unread={false}
-			ignoredUser={false}
-			showUserAvatar={true}
-		/>,
-		{
-			wrapper: mockAppRoot().build(),
-		},
-	);
-
-	expect(screen.getByRole('figure')).toBeInTheDocument();
-	expect(screen.queryByText('message body')).not.toBeInTheDocument();
-	expect(screen.getByRole('button', { name: 'Message_Ignored' })).toBeInTheDocument();
-});
-
 it('should show read receipt', () => {
 	render(
 		<RoomMessage

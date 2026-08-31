@@ -16,6 +16,7 @@ type ThreadMessageProps = {
 	showUserAvatar: boolean;
 	firstUnread: boolean;
 	system: boolean;
+	ignoredUser: boolean;
 };
 
 export const ThreadMessageItem = ({
@@ -25,6 +26,7 @@ export const ThreadMessageItem = ({
 	showUserAvatar,
 	firstUnread,
 	system,
+	ignoredUser,
 }: ThreadMessageProps) => {
 	const { t } = useTranslation();
 	const formatDate = useFormatDate();
@@ -60,7 +62,13 @@ export const ThreadMessageItem = ({
 			{system ? (
 				<SystemMessage message={message} showUserAvatar={showUserAvatar} />
 			) : (
-				<ThreadMessage message={message} sequential={shouldShowAsSequential} unread={firstUnread} showUserAvatar={showUserAvatar} />
+				<ThreadMessage
+					message={message}
+					sequential={shouldShowAsSequential}
+					unread={firstUnread}
+					showUserAvatar={showUserAvatar}
+					ignoredUser={ignoredUser}
+				/>
 			)}
 		</>
 	);

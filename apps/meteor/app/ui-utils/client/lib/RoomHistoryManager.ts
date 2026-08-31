@@ -1,4 +1,4 @@
-import type { IMessage, IRoom, ISubscription } from '@rocket.chat/core-typings';
+import type { IMessage, IRoom } from '@rocket.chat/core-typings';
 import { Emitter } from '@rocket.chat/emitter';
 import { differenceInMilliseconds } from 'date-fns';
 import { ReactiveVar } from 'meteor/reactive-var';
@@ -15,13 +15,7 @@ import { getUserPreference } from '../../../utils/client';
 
 const waitAfterFlush = () => new Promise((resolve) => Tracker.afterFlush(() => resolve(void 0)));
 
-const processMessage = async (msg: IMessage & { ignored?: boolean }, { subscription }: { subscription?: ISubscription }) => {
-	const userId = msg.u?._id;
-
-	if (subscription?.ignored?.includes(userId)) {
-		msg.ignored = true;
-	}
-
+const processMessage = async (msg: IMessage) => {
 	if (msg.t === 'e2e') {
 		msg.e2e = 'pending';
 	}
@@ -29,18 +23,12 @@ const processMessage = async (msg: IMessage & { ignored?: boolean }, { subscript
 	return (await onClientMessageReceived(msg)) || msg;
 };
 
-export async function upsertMessage({ msg, subscription }: { msg: IMessage & { ignored?: boolean }; subscription?: ISubscription }) {
-	Messages.state.store(await processMessage(msg, { subscription }));
+export async function upsertMessage({ msg }: { msg: IMessage }) {
+	Messages.state.store(await processMessage(msg));
 }
 
-export async function upsertMessageBulk({
-	msgs,
-	subscription,
-}: {
-	msgs: (IMessage & { ignored?: boolean })[];
-	subscription?: ISubscription;
-}) {
-	const processedMsgs = await Promise.all(msgs.map(async (msg) => processMessage(msg, { subscription })));
+export async function upsertMessageBulk({ msgs }: { msgs: IMessage[] }) {
+	const processedMsgs = await Promise.all(msgs.map(async (msg) => processMessage(msg)));
 	Messages.state.storeMany(processedMsgs);
 }
 
@@ -171,7 +159,6 @@ class RoomHistoryManagerClass extends Emitter {
 
 			await upsertMessageBulk({
 				msgs: messages.filter((msg) => msg.t !== 'command'),
-				subscription,
 			});
 
 			this.emit('loaded-messages');
@@ -232,14 +219,11 @@ class RoomHistoryManagerClass extends Emitter {
 			(a, b) => b.ts.getTime() - a.ts.getTime(),
 		);
 
-		const subscription = Subscriptions.state.find((record) => record.rid === rid);
-
 		if (lastMessage?.ts) {
 			const { ts } = lastMessage;
 			const result = await callWithErrorHandling('loadNextMessages', rid, ts, defaultLimit);
 			await upsertMessageBulk({
 				msgs: Array.from(result.messages).filter((msg) => msg.t !== 'command'),
-				subscription,
 			});
 
 			this.emit('loaded-messages');
@@ -316,7 +300,6 @@ class RoomHistoryManagerClass extends Emitter {
 
 		const room = this.getRoom(message.rid);
 
-		const subscription = Subscriptions.state.find((record) => record.rid === message.rid);
 		const result = await callWithErrorHandling('loadSurroundingMessages', message, defaultLimit, showThreadMessages);
 
 		this.clear(message.rid);
@@ -330,7 +313,7 @@ class RoomHistoryManagerClass extends Emitter {
 			room.oldestTs = messages[messages.length - 1].ts;
 		}
 
-		await upsertMessageBulk({ msgs: Array.from(result.messages).filter((msg) => msg.t !== 'command'), subscription });
+		await upsertMessageBulk({ msgs: Array.from(result.messages).filter((msg) => msg.t !== 'command') });
 
 		Tracker.afterFlush(async () => {
 			this.emit('loaded-messages');

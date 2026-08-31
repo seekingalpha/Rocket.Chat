@@ -1,6 +1,5 @@
 import { type IThreadMessage, type IThreadMainMessage, isVideoConfMessage } from '@rocket.chat/core-typings';
 import { Message, MessageLeftContainer, MessageContainer } from '@rocket.chat/fuselage';
-import { useToggle } from '@rocket.chat/fuselage-hooks';
 import { MessageAvatar } from '@rocket.chat/ui-avatar';
 import { useTranslation, useUserId, useUserCard } from '@rocket.chat/ui-contexts';
 import type { ReactElement } from 'react';
@@ -11,6 +10,7 @@ import { useIsMessageHighlight } from '../../../views/room/MessageList/contexts/
 import { useJumpToMessage } from '../../../views/room/MessageList/hooks/useJumpToMessage';
 import Emoji from '../../Emoji';
 import IgnoredContent from '../IgnoredContent';
+import { useIgnoredMessage } from '../hooks/useIgnoredMessage';
 import MessageHeader from '../MessageHeader';
 import MessageToolbarHolder from '../MessageToolbarHolder';
 import StatusIndicators from '../StatusIndicators';
@@ -21,13 +21,14 @@ type ThreadMessageProps = {
 	unread: boolean;
 	sequential: boolean;
 	showUserAvatar: boolean;
+	ignoredUser: boolean;
 };
 
-const ThreadMessage = ({ message, sequential, unread, showUserAvatar }: ThreadMessageProps): ReactElement => {
+const ThreadMessage = ({ message, sequential, unread, showUserAvatar, ignoredUser }: ThreadMessageProps): ReactElement => {
 	const t = useTranslation();
 	const uid = useUserId();
 	const editing = useIsMessageHighlight(message._id);
-	const [ignored, toggleIgnoring] = useToggle((message as { ignored?: boolean }).ignored);
+	const [ignored, revealIgnoredMessage] = useIgnoredMessage(ignoredUser);
 	const { openUserCard, triggerProps } = useUserCard();
 
 	// Checks if is videoconf message to limit toolbox actions
@@ -71,7 +72,7 @@ const ThreadMessage = ({ message, sequential, unread, showUserAvatar }: ThreadMe
 				{!sequential && <MessageHeader message={message} />}
 
 				{ignored ? (
-					<IgnoredContent messageId={message._id} onShowMessageIgnored={toggleIgnoring} />
+					<IgnoredContent messageId={message._id} onShowMessageIgnored={revealIgnoredMessage} />
 				) : (
 					<ThreadMessageContent message={message} />
 				)}

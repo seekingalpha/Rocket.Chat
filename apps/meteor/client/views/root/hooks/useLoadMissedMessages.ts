@@ -4,7 +4,7 @@ import { useEffect, useRef } from 'react';
 
 import { LegacyRoomManager, upsertMessage } from '../../../../app/ui-utils/client';
 import { callWithErrorHandling } from '../../../lib/utils/callWithErrorHandling';
-import { Messages, Subscriptions } from '../../../stores';
+import { Messages } from '../../../stores';
 
 /**
  * Loads missed messages for a room
@@ -23,8 +23,7 @@ const loadMissedMessages = async (rid: IRoom['_id']): Promise<void> => {
 	try {
 		const result = await callWithErrorHandling('loadMissedMessages', rid, lastMessage.ts);
 		if (result) {
-			const subscription = Subscriptions.state.find((record) => record.rid === rid);
-			await Promise.all(Array.from(result).map((msg) => upsertMessage({ msg, subscription })));
+			await Promise.all(Array.from(result).map((msg) => upsertMessage({ msg })));
 		}
 	} catch (error) {
 		console.error('Error loading missed messages:', error);
